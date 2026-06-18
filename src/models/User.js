@@ -5,16 +5,16 @@ const userSchema = new mongoose.Schema(
     nickName: {
       type: String,
       required: true,
-      unique: true,
+      unique: [true, "El nickname es obligatorio"],
       trim: true,
     },
     email: {
       type: String,
-      required: true,
+      required: [true, "El email es obligatorio"],
     },
     password: {
       type: String,
-      required: true,
+      required: [true, "La contraseña es obligatoria"],
     },
 
     followers: [

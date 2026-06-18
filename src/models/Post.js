@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const postImageSchema = new mongoose.Schema({
+const imageSchema = new mongoose.Schema({
     url: { 
         type: String, 
         required: [true, "La URL de la imagen es obligatoria"],
@@ -12,7 +12,7 @@ const postSchema = new mongoose.Schema(
   {
     descripcion: {
       type: String,
-      required: true,
+      required: [true, "La descripcion del post es obligatoria"],
     },
 
     user: {
@@ -20,7 +20,7 @@ const postSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    images: [postImageSchema],
+    images: [imageSchema],
     tags: [
       {
         type: mongoose.Schema.Types.ObjectId,

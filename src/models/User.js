@@ -4,26 +4,25 @@ const userSchema = new mongoose.Schema(
   {
     nickname: {
       type: String,
-      required: true,
-      unique: [true, "El nickname es obligatorio"],
+      required: [true, "El nickname es obligatorio"],
+      unique: true,
       trim: true,
     },
     email: {
       type: String,
       required: [true, "El email es obligatorio"],
+      unique: true, 
     },
     password: {
       type: String,
       required: [true, "La contraseña es obligatoria"],
     },
-
     followers: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
       },
     ],
-
     following: [
       {
         type: mongoose.Schema.Types.ObjectId,

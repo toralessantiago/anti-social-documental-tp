@@ -1,0 +1,659 @@
+openapi: 3.0.3
+info:
+  title: Anti-Social Net API
+  version: 1.0.0
+  description: API REST para la plataforma Anti-Social Net implementada con Express y el ORM Sequelize.
+
+servers: []
+
+tags:
+  - name: Users
+    description: Operaciones de gestión de usuarios
+  - name: Followers
+    description: Gestión de seguidores y seguidos entre usuarios
+  - name: Posts
+    description: Operaciones de publicaciones, imágenes asociadas y asignación de etiquetas
+  - name: Comments
+    description: Operaciones de comentarios con filtrado de fechas
+  - name: Tags
+    description: Operaciones del catálogo general de etiquetas del sistema
+
+paths:
+  # --- ENDPOINTS DE USERS ---
+  /users:
+    post:
+      tags:
+        - Users
+      summary: Crear User
+      description: Registra un nuevo usuario en el sistema validando los campos con Joi.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nickname:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+              example:
+                nickname: juan
+                email: juanperez@gmail.com
+                password: prz123
+      responses:
+        "201":
+          description: Usuario creado con éxito.
+        "500":
+          description: Error al crear usuario.
+
+    get:
+      tags:
+        - Users
+      summary: Obtener Users
+      description: Devuelve el listado completo de usuarios registrados incluyendo sus publicaciones y comentarios.
+      responses:
+        "200":
+          description: Usuarios obtenidos con éxito.
+        "500":
+          description: Error al obtener usuarios.
+
+  /users/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: ID numérico del usuario que se desea consultar, editar o eliminar.
+        schema:
+          type: integer
+
+    get:
+      tags:
+        - Users
+      summary: Obtener User
+      description: Devuelve los datos de un usuario específico junto con sus publicaciones y comentarios.
+      responses:
+        "200":
+          description: Usuario obtenido con éxito.
+        "404":
+          description: Usuario no encontrado.
+        "500":
+          description: Error al obtener usuario.
+
+    put:
+      tags:
+        - Users
+      summary: Actualizar User
+      description: Modifica la información del usuario en la base de datos validando los campos con Joi.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nickname:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+              example:
+                nickname: pablo
+                email: pablogomez@gmail.com
+                password: dfg505
+      responses:
+        "200":
+          description: Usuario actualizado con éxito.
+        "500":
+          description: Error al actualizar usuario.
+
+    delete:
+      tags:
+        - Users
+      summary: Eliminar User
+      description: Borra permanentemente el usuario de la base de datos por su identificador numérico.
+      responses:
+        "200":
+          description: Usuario eliminado con éxito.
+        "404":
+          description: Usuario no encontrado.
+        "500":
+          description: Error al eliminar usuario.
+
+  # --- ENDPOINTS DE FOLLOWERS ---
+  /followers/{userId}/{targetId}:
+    parameters:
+      - name: userId
+        in: path
+        required: true
+        description: ID del usuario que realiza la acción.
+        schema:
+          type: integer
+      - name: targetId
+        in: path
+        required: true
+        description: ID del usuario objetivo.
+        schema:
+          type: integer
+
+    post:
+      tags:
+        - Followers
+      summary: Seguir User
+      description: Registra una nueva relación de seguimiento en la tabla intermedia Follows.
+      responses:
+        "201":
+          description: Usuario seguido correctamente.
+        "404":
+          description: Usuario no encontrado.
+        "500":
+          description: Error al seguir usuario.
+
+    delete:
+      tags:
+        - Followers
+      summary: Dejar de Seguir User
+      description: Elimina el registro de seguimiento en la tabla intermedia Follows.
+      responses:
+        "200":
+          description: Usuario dejado de seguir.
+        "404":
+          description: Usuario no encontrado.
+        "500":
+          description: Error al dejar de seguir usuario.
+
+  /followers/{userId}:
+    parameters:
+      - name: userId
+        in: path
+        required: true
+        description: ID del usuario para consultar sus seguidores.
+        schema:
+          type: integer
+
+    get:
+      tags:
+        - Followers
+      summary: Obtener Followers
+      description: Devuelve el listado de todos los usuarios que siguen al userId actual.
+      responses:
+        "200":
+          description: Lista de seguidores obtenida con éxito.
+        "404":
+          description: Usuario no encontrado.
+        "500":
+          description: Error al obtener followers.
+
+  /followers/following/{userId}:
+    parameters:
+      - name: userId
+        in: path
+        required: true
+        description: ID del usuario para consultar a quiénes sigue.
+        schema:
+          type: integer
+
+    get:
+      tags:
+        - Followers
+      summary: Obtener Seguidos
+      description: Devuelve el listado de todos los usuarios a los que el userId actual está siguiendo.
+      responses:
+        "200":
+          description: Lista de usuarios seguidos obtenida con éxito.
+        "404":
+          description: Usuario no encontrado.
+        "500":
+          description: Error al obtener following.
+
+  # --- ENDPOINTS DE POSTS ---
+  /posts:
+    post:
+      tags:
+        - Posts
+      summary: Crear Post
+      description: Registra una nueva publicación en el sistema asociándola al ID numérico del usuario.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                description:
+                  type: string
+                userId:
+                  type: integer
+              example:
+                description: "Hola Mundo"
+                userId: 1
+      responses:
+        "201":
+          description: Post creado con éxito.
+        "400":
+          description: Error de validación Joi.
+        "500":
+          description: Error interno del servidor al crear el post.
+
+    get:
+      tags:
+        - Posts
+      summary: Obtener Posts
+      description: Devuelve el listado general de publicaciones incluyendo sus imágenes, etiquetas y el usuario autor de cada una.
+      responses:
+        "200":
+          description: Lista de posts obtenida con éxito.
+        "500":
+          description: Error interno del servidor.
+
+  /posts/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: ID numérico del post que se desea consultar, editar o eliminar.
+        schema:
+          type: integer
+
+    get:
+      tags:
+        - Posts
+      summary: Obtener Post
+      description: Devuelve los datos de una publicación específica incluyendo sus imágenes, etiquetas y los datos del autor.
+      responses:
+        "200":
+          description: Post encontrado.
+        "404":
+          description: Post no encontrado.
+        "500":
+          description: Error interno del servidor.
+
+    put:
+      tags:
+        - Posts
+      summary: Editar Post
+      description: Modifica el texto de una publicación validando los campos con Joi.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                descripcion:
+                  type: string
+              example:
+                description: "Contenido del post original modificado"
+      responses:
+        "200":
+          description: Post editado con éxito.
+        "400":
+          description: Error de validación Joi.
+        "404":
+          description: Post no encontrado.
+        "500":
+          description: Error interno del servidor al editar el post.
+
+    delete:
+      tags:
+        - Posts
+      summary: Eliminar Post
+      description: Borra permanentemente el post de la base de datos por su identificador numérico.
+      responses:
+        "200":
+          description: Post eliminado con éxito.
+        "404":
+          description: Post no encontrado.
+        "500":
+          description: Error interno del servidor al eliminar el post.
+
+  # --- ENDPOINTS DE POSTS IMAGES ---
+  /posts/{id}/images:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: ID del Post al que pertenecen las imágenes.
+        schema:
+          type: integer
+
+    post:
+      tags:
+        - Posts
+      summary: Agregar Imagenes
+      description: Crea un nuevo registro de imagen vinculándolo al ID del post.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                url:
+                  type: string
+              example:
+                url: "https://unsplash.com/es/fotos/un-macbook-con-lineas-de-codigo-en-su-pantalla-en-un-escritorio-ocupado-m_HRfLhgABo"
+      responses:
+        "201":
+          description: Imagen agregada con éxito.
+        "400":
+          description: Error de validación Joi.
+        "404":
+          description: Post no encontrado.
+        "500":
+          description: Error interno del servidor al agregar imagenes.
+
+    get:
+      tags:
+        - Posts
+      summary: Obtener Imagenes
+      description: Devuelve el listado de todas las URLs de imágenes asociadas a una publicación específica.
+      responses:
+        "200":
+          description: Lista de imágenes obtenida con éxito.
+        "404":
+          description: Post no encontrado.
+        "500":
+          description: Error interno del servidor al obtener las imagenes.
+
+  /posts/{id}/images/{imageId}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: ID del Post al que pertenece la imagen.
+        schema:
+          type: integer
+      - name: imageId
+        in: path
+        required: true
+        description: ID numérico único de la imagen que se desea eliminar.
+        schema:
+          type: integer
+
+    delete:
+      tags:
+        - Posts
+      summary: Eliminar Imagen
+      description: Valida que el post exista, que la imagen exista y luego la borra permanentemente.
+      responses:
+        "200":
+          description: Imagen eliminada con éxito.
+        "404":
+          description: Post o Imagen no encontrados.
+        "500":
+          description: Error interno del servidor al eliminar las imagenes.
+
+  # --- ENDPOINTS DE POSTS TAGS ---
+  /posts/{id}/tags:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: ID del Post al que se le quieren gestionar las etiquetas.
+        schema:
+          type: integer
+
+    post:
+      tags:
+        - Posts
+      summary: Asignar Tags
+      description: Reemplaza o asigna un listado completo de etiquetas a una publicación mediante la tabla intermedia PostTag.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tagsIds:
+                  type: array
+                  items:
+                    type: integer
+              example:
+                tagsIds: [1, 2]
+      responses:
+        "200":
+          description: Tags asignados al post correctamente.
+        "404":
+          description: Post no encontrado.
+        "500":
+          description: Error al asignar tags en el post.
+
+  /posts/{id}/tags/{tagId}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: ID del Post.
+        schema:
+          type: integer
+      - name: tagId
+        in: path
+        required: true
+        description: ID de la etiqueta (Tag) que se quiere asociar o desasociar.
+        schema:
+          type: integer
+
+    post:
+      tags:
+        - Posts
+      summary: Asociar Tag
+      description: Añade una etiqueta individual a la publicación usando el método addTag de Sequelize.
+      responses:
+        "200":
+          description: Tag asociado al post correctamente.
+        "404":
+          description: Post o Tag no encontrados.
+        "500":
+          description: Error al asociar o validar el tag en el post.
+
+    delete:
+      tags:
+        - Posts
+      summary: Desasociar Tag
+      description: Remueve una etiqueta individual de la publicación usando el método removeTag de Sequelize sin borrar el Tag por completo.
+      responses:
+        "200":
+          description: Tag desasociado correctamente.
+        "404":
+          description: Post o Tag no encontrados.
+        "500":
+          description: Error al desasociar o validar el tag del post.
+
+  # --- ENDPOINTS DE COMMENTS ---
+  /comments:
+    post:
+      tags:
+        - Comments
+      summary: Crear Comment
+      description: Registra un nuevo comentario asociándolo al ID de un usuario y de un post específicos.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+                userId:
+                  type: integer
+                postId:
+                  type: integer
+                createdAt:
+                  type: string
+                  format: date-time
+              example:
+                content: "Este proyecto lo estamos haciendo con Express!"
+                userId: 1
+                postId: 1
+      responses:
+        "201":
+          description: Comentario creado con éxito.
+        "400":
+          description: Error de validación Joi.
+        "500":
+          description: Error al crear el comentario.
+
+    get:
+      tags:
+        - Comments
+      summary: Obtener Comments
+      description: Devuelve el listado de comentarios visibles. Ejecuta automáticamente un filtro que oculta los comentarios más antiguos que los meses configurados en el .env.
+      responses:
+        "200":
+          description: Lista de comentarios visibles obtenida con éxito.
+        "500":
+          description: Error al obtener comentarios.
+
+  /comments/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: ID numérico del comentario que se desea editar o eliminar.
+        schema:
+          type: integer
+
+    put:
+      tags:
+        - Comments
+      summary: Actualizar Comment
+      description: Modifica el texto de un comentario validando los caracteres mínimos con Joi.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+              example:
+                content: "Me sirvió un montón"
+      responses:
+        "200":
+          description: Comentario actualizado con éxito.
+        "404":
+          description: Comentario no encontrado.
+        "500":
+          description: Error al actualizar el comentario.
+
+    delete:
+      tags:
+        - Comments
+      summary: Eliminar Comment
+      description: Borra permanentemente el comentario de la base de datos de forma segura.
+      responses:
+        "200":
+          description: Comentario eliminado correctamente.
+        "404":
+          description: Comentario no encontrado.
+        "500":
+          description: Error al eliminar el comentario.
+
+  # --- ENDPOINTS DE TAGS ---
+  /tags:
+    post:
+      tags:
+        - Tags
+      summary: Crear Tag
+      description: Registra una nueva etiqueta en la base de datos para que luego pueda ser asignada a las publicaciones.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+              example:
+                name: "backend"
+      responses:
+        "201":
+          description: Tag creado con éxito.
+        "400":
+          description: Error de validación Joi.
+        "500":
+          description: Error al crear el tag.
+
+    get:
+      tags:
+        - Tags
+      summary: Obtener Tags
+      description: Devuelve el listado completo de etiquetas registradas en el sistema.
+      responses:
+        "200":
+          description: Lista de tags obtenida con éxito.
+        "500":
+          description: Error interno del servidor al obtener los tags.
+
+  /tags/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: ID numérico de la etiqueta (Tag) que se desea consultar, editar o eliminar.
+        schema:
+          type: integer
+
+    get:
+      tags:
+        - Tags
+      summary: Obtener Tag
+      description: Devuelve la información de una etiqueta específica usando el middleware de validación de ID.
+      responses:
+        "200":
+          description: Tag encontrado.
+        "400":
+          description: El id del tag debe ser numérico.
+        "404":
+          description: Tag no encontrado.
+        "500":
+          description: Error al obtener el tag.
+
+    put:
+      tags:
+        - Tags
+      summary: Actualizar Tag
+      description: Modifica el nombre de una etiqueta existente verificando que no choque con otro nombre duplicado.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+              example:
+                name: "cine"
+      responses:
+        "200":
+          description: Tag actualizado con éxito.
+        "400":
+          description: Error de validación Joi. El id del tag debe ser numérico y no existir previamente.
+        "404":
+          description: Tag no encontrado.
+        "500":
+          description: Error al obtener, verificar o actualizar el tag.
+
+    delete:
+      tags:
+        - Tags
+      summary: Eliminar Tag
+      description: Borra permanentemente la etiqueta de la base de datos por su identificador numérico.
+      responses:
+        "200":
+          description: Tag eliminado correctamente.
+        "400":
+          description: El id del tag debe ser numérico.
+        "404":
+          description: Tag no encontrado.
+        "500":
+          description: Error al obtener o eliminar el tag.

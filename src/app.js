@@ -17,7 +17,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 const swaggerDocument = YAML.load(
-  fs.readFileSync(path.join(__dirname, "../swagger.yml"), "utf8")
+  fs.readFileSync(path.join(__dirname, "swagger.yml"), "utf8")
 );
 
 app.use(express.json());

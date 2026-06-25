@@ -11,13 +11,15 @@
   "author": "Gerardo Gonzalez Tulian",
   "license": "MIT",
   "devDependencies": {
-    "nodemon": "^3.1.10"
+    "nodemon": "^3.1.14",
+    "sequelize-cli": "^6.6.5"
   },
   "dependencies": {
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "mongoose": "^9.7.1",
     "swagger-ui-express": "^5.0.1",
-    "yamljs": "^0.3.0"
+    "joi": "^18.2.1",
+    "js-yaml": "^4.2.0"
   }
 }

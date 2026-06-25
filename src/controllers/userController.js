@@ -3,30 +3,24 @@ const User = require("../models/User");
 // GET USERS
 const getUsers = async (req, res) => {
   try {
-    const users = await User.find().select("_id nickname email");
+    const users = await User.find().select("_id nickname email"); 
 
     res.status(200).json({
       message: "Usuarios obtenidos con éxito.",
       data: users,
     });
   } catch (error) {
-    res.status(500).json({
-      error: "Error al obtener usuarios.",
-    });
+    res.status(500).json({ error: "Error al obtener usuarios." });
   }
 };
 
 // GET USER BY ID
 const getUserById = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id).select(
-      "_id nickname email"
-    );
+    const user = await User.findById(req.params.id).select("_id nickname email");
 
     if (!user) {
-      return res.status(404).json({
-        error: "Usuario no encontrado.",
-      });
+      return res.status(404).json({ error: "Usuario no encontrado." });
     }
 
     res.status(200).json({
@@ -34,23 +28,17 @@ const getUserById = async (req, res) => {
       data: user,
     });
   } catch (error) {
-    res.status(500).json({
-      error: "Error al obtener usuario.",
-    });
+    res.status(500).json({ error: "Error al obtener usuario." });
   }
 };
 
 // CREATE USER
 const createUser = async (req, res) => {
   try {
-    const existingUser = await User.findOne({
-      nickname: req.body.nickname,
-    });
+    const existingUser = await User.findOne({ nickname: req.body.nickname }); 
 
     if (existingUser) {
-      return res.status(400).json({
-        error: "El nickname ya existe.",
-      });
+      return res.status(400).json({ error: "El nickname ya existe." });
     }
 
     const user = await User.create(req.body);
@@ -59,14 +47,12 @@ const createUser = async (req, res) => {
       message: "Usuario creado con éxito.",
       data: {
         id: user._id,
-        nickname: user.nickname,
+        nickname: user.nickname, 
         email: user.email,
       },
     });
   } catch (error) {
-    res.status(500).json({
-      error: "Error al crear usuario.",
-    });
+    res.status(500).json({ error: "Error al crear usuario." });
   }
 };
 
@@ -76,32 +62,21 @@ const updateUser = async (req, res) => {
     const user = await User.findById(req.params.id);
 
     if (!user) {
-      return res.status(404).json({
-        error: "Usuario no encontrado.",
-      });
+      return res.status(404).json({ error: "Usuario no encontrado." });
     }
 
     if (req.body.nickname) {
-      const existingUser = await User.findOne({
-        nickname: req.body.nickname,
-      });
+      const existingUser = await User.findOne({ nickname: req.body.nickname }); 
 
-      if (
-        existingUser &&
-        existingUser._id.toString() !== user._id.toString()
-      ) {
-        return res.status(400).json({
-          error: "El nickname ya existe.",
-        });
+      if (existingUser && existingUser._id.toString() !== user._id.toString()) {
+        return res.status(400).json({ error: "El nickname ya existe." });
       }
     }
 
     const updatedUser = await User.findByIdAndUpdate(
       req.params.id,
       req.body,
-      {
-        new: true,
-      }
+      { new: true }
     );
 
     res.status(200).json({
@@ -113,9 +88,7 @@ const updateUser = async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(500).json({
-      error: "Error al actualizar usuario.",
-    });
+    res.status(500).json({ error: "Error al actualizar usuario." });
   }
 };
 
@@ -125,20 +98,14 @@ const deleteUser = async (req, res) => {
     const user = await User.findById(req.params.id);
 
     if (!user) {
-      return res.status(404).json({
-        error: "Usuario no encontrado.",
-      });
+      return res.status(404).json({ error: "Usuario no encontrado." });
     }
 
     await User.findByIdAndDelete(req.params.id);
 
-    res.status(200).json({
-      message: "Usuario eliminado con éxito.",
-    });
+    res.status(200).json({ message: "Usuario eliminado con éxito." });
   } catch (error) {
-    res.status(500).json({
-      error: "Error al eliminar usuario.",
-    });
+    res.status(500).json({ error: "Error al eliminar usuario." });
   }
 };
 

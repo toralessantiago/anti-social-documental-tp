@@ -1,12 +1,10 @@
 openapi: 3.0.3
 info:
   title: Anti-Social Net API
-  version: 2.0.0
-  description: API REST para la plataforma Anti-Social Net. Migrada a una arquitectura NoSQL utilizando Express, Mongoose y MongoDB.
+  version: 1.0.0
+  description: API REST para la plataforma Anti-Social Net implementada con Express y el ORM Sequelize.
 
-servers:
-  - url: http://localhost:3000
-    description: Servidor Local de Desarrollo (Docker).
+servers: []
 
 tags:
   - name: Users
@@ -395,16 +393,15 @@ paths:
       - name: id
         in: path
         required: true
-        description: ID del Post al que se le quieren gestionar los Tags (Mongoose ObjectId de 24 caracteres).
+        description: ID del Post al que se le quieren gestionar las etiquetas.
         schema:
-          type: string
-          example: 6a3acdf1417ae63ebc709a5f
+          type: integer
 
     post:
       tags:
         - Posts
       summary: Asignar Tags
-      description: Reemplaza o asigna un listado completo de Tags directamente en el arreglo interno 'tags' del documento del Post en MongoDB.
+      description: Reemplaza o asigna un listado completo de etiquetas a una publicación mediante la tabla intermedia PostTag.
       requestBody:
         required: true
         content:
@@ -415,68 +412,57 @@ paths:
                 tagsIds:
                   type: array
                   items:
-                    type: string
-                    example: 66786c3a1a2b3c4d5e6f7a8b
+                    type: integer
               example:
-                tagsIds:
-                  ["6a3acdf1417ae63ebc709a5f", "66786c3a1a2b3c4d5e6f7a8b"]
+                tagsIds: [1, 2]
       responses:
         "200":
           description: Tags asignados al post correctamente.
-        "400":
-          description: El ID del Post debe ser un formato válido de MongoDB.
         "404":
           description: Post no encontrado.
         "500":
-          description: Error al asignar Tags en el Post.
+          description: Error al asignar tags en el post.
 
   /posts/{id}/tags/{tagId}:
     parameters:
       - name: id
         in: path
         required: true
-        description: ID del Post (Mongoose ObjectId).
+        description: ID del Post.
         schema:
-          type: string
-          example: 6a3acdf1417ae63ebc709a5f
+          type: integer
       - name: tagId
         in: path
         required: true
-        description: ID del Tag que se quiere asociar o desasociar (Mongoose ObjectId).
+        description: ID de la etiqueta (Tag) que se quiere asociar o desasociar.
         schema:
-          type: string
-          example: 66786c3a1a2b3c4d5e6f7a8b
+          type: integer
 
     post:
       tags:
         - Posts
       summary: Asociar Tag
-      description: Añade un Tag individual al arreglo del Post utilizando el método .addToSet() de Mongoose para evitar elementos duplicados.
-    responses:
+      description: Añade una etiqueta individual a la publicación usando el método addTag de Sequelize.
       responses:
         "200":
           description: Tag asociado al post correctamente.
-        "400":
-          description: El ID del Post debe ser un formato válido de MongoDB.
         "404":
-          description: Post o Tag no encontrados en las colecciones.
+          description: Post o Tag no encontrados.
         "500":
-          description: Error al asociar o validar el Tag en el Post.
+          description: Error al asociar o validar el tag en el post.
 
     delete:
       tags:
         - Posts
       summary: Desasociar Tag
-      description: Remueve un Tag individual de la lista del Post manipulando el arreglo en memoria mediante el método .filter() de JavaScript y persistiendo con .save().
+      description: Remueve una etiqueta individual de la publicación usando el método removeTag de Sequelize sin borrar el Tag por completo.
       responses:
         "200":
           description: Tag desasociado correctamente.
-        "400":
-          description: El ID del Post debe ser un formato válido de MongoDB.
         "404":
           description: Post o Tag no encontrados.
         "500":
-          description: Error al desasociar o validar el Tag del Post.
+          description: Error al desasociar o validar el tag del post.
 
   # --- ENDPOINTS DE COMMENTS ---
   /comments:
@@ -576,158 +562,98 @@ paths:
       tags:
         - Tags
       summary: Crear Tag
-      description: Registra un nuevo Tag en la base de datos para que luego pueda ser asignado a los Posts.
+      description: Registra una nueva etiqueta en la base de datos para que luego pueda ser asignada a las publicaciones.
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
-              required:
-                - name
               properties:
                 name:
                   type: string
-                  minLength: 2
-                  maxLength: 30
-                  description: Nombre único para el nuevo Tag.
               example:
-                name: "javascript"
+                name: "backend"
       responses:
         "201":
           description: Tag creado con éxito.
         "400":
-          description: Error de validación de Mongoose (el nombre ya existe, está vacío o no cumple con el largo de 2 a 30 caracteres).
+          description: Error de validación Joi.
         "500":
-          description: Error al crear el Tag.
+          description: Error al crear el tag.
 
     get:
       tags:
         - Tags
       summary: Obtener Tags
-      description: Devuelve el listado completo de Tags registrados en el sistema.
+      description: Devuelve el listado completo de etiquetas registradas en el sistema.
       responses:
         "200":
-          description: Lista de Tags obtenida con éxito.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    _id:
-                      type: string
-                      example: 6a3acdf1417ae63ebc709a5f
-                    name:
-                      type: string
-                      example: javascript
+          description: Lista de tags obtenida con éxito.
         "500":
-          description: Error interno del servidor al obtener los Tags.
+          description: Error interno del servidor al obtener los tags.
 
   /tags/{id}:
     parameters:
       - name: id
         in: path
         required: true
-        description: ID único del Tag que se desea consultar, editar o eliminar (Mongoose ObjectId de 24 caracteres).
+        description: ID numérico de la etiqueta (Tag) que se desea consultar, editar o eliminar.
         schema:
-          type: string
-          example: 6a3acdf1417ae63ebc709a5f
+          type: integer
 
     get:
       tags:
         - Tags
       summary: Obtener Tag
-      description: Devuelve la información de un Tag específico usando el middleware de validación de ID para MongoDB.
+      description: Devuelve la información de una etiqueta específica usando el middleware de validación de ID.
       responses:
         "200":
           description: Tag encontrado.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  _id:
-                    type: string
-                    example: 6a3acdf1417ae63ebc709a5f
-                  name:
-                    type: string
-                    example: javascript
         "400":
-          description: El ID del Post debe ser un formato válido de MongoDB.
+          description: El id del tag debe ser numérico.
         "404":
           description: Tag no encontrado.
         "500":
-          description: Error al obtener el Tag.
+          description: Error al obtener el tag.
 
     put:
       tags:
         - Tags
       summary: Actualizar Tag
-      description: Modifica el nombre de un Tag existente en MongoDB, verificando que no esté duplicado y aplicando las reglas de longitud del modelo.
+      description: Modifica el nombre de una etiqueta existente verificando que no choque con otro nombre duplicado.
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
-              required:
-                - name
               properties:
                 name:
                   type: string
-                  minLength: 2
-                  maxLength: 30
-                  description: Nuevo nombre para el Tag.
-            example:
-              name: "javascript-avanzado"
+              example:
+                name: "cine"
       responses:
         "200":
           description: Tag actualizado con éxito.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Tag actualizado correctamente.
-                  tag:
-                    type: object
-                    properties:
-                      _id:
-                        type: string
-                        example: 6a3acdf1417ae63ebc709a5f
-                      name:
-                        type: string
-                        example: javascript-avanzado
         "400":
-          description: Error de validación. El ID tiene formato inválido, el nombre ya existe o no cumple con el largo de 2 a 30 caracteres.
+          description: Error de validación Joi. El id del tag debe ser numérico y no existir previamente.
         "404":
-          description: Tag no encontrado para actualizar.
+          description: Tag no encontrado.
         "500":
-          description: Error al actualizar el Tag.
+          description: Error al obtener, verificar o actualizar el tag.
 
     delete:
       tags:
         - Tags
       summary: Eliminar Tag
-      description: Borra permanentemente el Tag de la base de datos de MongoDB utilizando su identificador ObjectId.
+      description: Borra permanentemente la etiqueta de la base de datos por su identificador numérico.
       responses:
         "200":
           description: Tag eliminado correctamente.
-          content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                message:
-                  type: string
-                  example: Tag eliminado correctamente.
         "400":
-          description: El ID del Post debe ser un formato válido de MongoDB.
+          description: El id del tag debe ser numérico.
         "404":
           description: Tag no encontrado.
         "500":
-          description: Error al eliminar el Tag.
+          description: Error al obtener o eliminar el tag.

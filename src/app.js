@@ -6,8 +6,10 @@ const path = require("path");
 const YAML = require("js-yaml");
 const swaggerUi = require("swagger-ui-express");
 
-const connectDB = require("./config/config");
+const connectDB = require("./config/db");
 
+const routerTag = require("./routes/tagRoutes");
+const routerPost = require("./routes/postRoutes");
 const routerUsers = require("./routes/userRoutes");
 const routerFollowers = require("./routes/followerRoutes");
 
@@ -22,8 +24,10 @@ app.use(express.json());
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-app.use("/users", routerUsers);
-app.use("/followers", routerFollowers);
+app.use("/api/tags", routerTag);
+app.use("/api/posts", routerPost);
+app.use("/api/users", routerUsers);
+app.use("/api/followers", routerFollowers);
 
 const startServer = async () => {
   try {

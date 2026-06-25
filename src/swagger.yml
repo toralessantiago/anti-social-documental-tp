@@ -2,25 +2,27 @@ openapi: 3.0.3
 info:
   title: Anti-Social Net API
   version: 1.0.0
-  description: API REST para la plataforma Anti-Social Net implementada con Express y el ORM Sequelize.
+  description: API REST para la plataforma Anti-Social Net. Implementada con Express, Mongoose y base de datos documental MongoDB (TP Estrategias de Persistencia - UNAHUR).
 
-servers: []
+servers:
+  - url: http://localhost:3000
+    description: Servidor Local de Desarrollo
 
 tags:
   - name: Users
     description: Operaciones de gestión de usuarios
   - name: Followers
-    description: Gestión de seguidores y seguidos entre usuarios
+    description: Gestión de seguidores y seguidos mediante referencias entre documentos
   - name: Posts
-    description: Operaciones de publicaciones, imágenes asociadas y asignación de etiquetas
+    description: Operaciones de publicaciones, imágenes embebidas y asignación de etiquetas
   - name: Comments
-    description: Operaciones de comentarios con filtrado de fechas
+    description: Operaciones de comentarios con filtrado de fechas por variables de entorno
   - name: Tags
     description: Operaciones del catálogo general de etiquetas del sistema
 
 paths:
   # --- ENDPOINTS DE USERS ---
-  /users:
+  /api/users:
     post:
       tags:
         - Users
@@ -46,6 +48,8 @@ paths:
       responses:
         "201":
           description: Usuario creado con éxito.
+        "400":
+          description: Error de validación (Joi) en los datos enviados.
         "500":
           description: Error al crear usuario.
 
@@ -53,30 +57,34 @@ paths:
       tags:
         - Users
       summary: Obtener Users
-      description: Devuelve el listado completo de usuarios registrados incluyendo sus publicaciones y comentarios.
+      description: Devuelve el listado completo de usuarios registrados en MongoDB.
       responses:
         "200":
           description: Usuarios obtenidos con éxito.
         "500":
           description: Error al obtener usuarios.
 
-  /users/{id}:
+  /api/users/{id}:
     parameters:
       - name: id
         in: path
         required: true
-        description: ID numérico del usuario que se desea consultar, editar o eliminar.
+        description: ID único del usuario (MongoDB ObjectId).
         schema:
           type: string
+          pattern: '^[0-9a-fA-F]{24}$'
+          example: 6a3d3c37d9726fc5cca163f4
 
     get:
       tags:
         - Users
       summary: Obtener User
-      description: Devuelve los datos de un usuario específico junto con sus publicaciones y comentarios.
+      description: Devuelve los datos de un usuario específico mediante su ObjectId.
       responses:
         "200":
           description: Usuario obtenido con éxito.
+        "400":
+          description: Formato de ID inválido.
         "404":
           description: Usuario no encontrado.
         "500":
@@ -86,7 +94,7 @@ paths:
       tags:
         - Users
       summary: Actualizar User
-      description: Modifica la información del usuario en la base de datos validando los campos con Joi.
+      description: Modifica la información del usuario en MongoDB validando los campos con Joi.
       requestBody:
         required: true
         content:
@@ -107,6 +115,8 @@ paths:
       responses:
         "200":
           description: Usuario actualizado con éxito.
+        "400":
+          description: Error de validación Joi o formato de ID inválido.
         "500":
           description: Error al actualizar usuario.
 
@@ -114,7 +124,7 @@ paths:
       tags:
         - Users
       summary: Eliminar User
-      description: Borra permanentemente el usuario de la base de datos por su identificador numérico.
+      description: Borra permanentemente el usuario de la base de datos por su ObjectId.
       responses:
         "200":
           description: Usuario eliminado con éxito.
@@ -124,31 +134,35 @@ paths:
           description: Error al eliminar usuario.
 
   # --- ENDPOINTS DE FOLLOWERS ---
-  /followers/{userId}/{targetId}:
+  /api/followers/{userId}/{targetId}:
     parameters:
       - name: userId
         in: path
         required: true
-        description: ID del usuario que realiza la acción.
+        description: ID del usuario que realiza la acción (MongoDB ObjectId).
         schema:
           type: string
+          example: 6a3d3c37d9726fc5cca163f4
       - name: targetId
         in: path
         required: true
-        description: ID del usuario objetivo.
+        description: ID del usuario objetivo a seguir/dejar de seguir (MongoDB ObjectId).
         schema:
           type: string
+          example: 6a3d3da1b2156c7163f5c575
 
     post:
       tags:
         - Followers
       summary: Seguir User
-      description: Registra una nueva relación de seguimiento en la tabla intermedia Follows.
+      description: Registra una nueva relación de seguimiento mediante referencias cruzadas en MongoDB.
       responses:
         "201":
           description: Usuario seguido correctamente.
+        "400":
+          description: Formato de IDs inválido.
         "404":
-          description: Usuario no encontrado.
+          description: Uno o ambos usuarios no existen (Integridad Referencial).
         "500":
           description: Error al seguir usuario.
 
@@ -156,23 +170,24 @@ paths:
       tags:
         - Followers
       summary: Dejar de Seguir User
-      description: Elimina el registro de seguimiento en la tabla intermedia Follows.
+      description: Remueve el registro de seguimiento entre ambos usuarios.
       responses:
         "200":
-          description: Usuario dejado de seguir.
+          description: Usuario dejado de seguir con éxito.
         "404":
-          description: Usuario no encontrado.
+          description: Relación o usuario no encontrado.
         "500":
           description: Error al dejar de seguir usuario.
 
-  /followers/{userId}:
+  /api/followers/{userId}:
     parameters:
       - name: userId
         in: path
         required: true
-        description: ID del usuario para consultar sus seguidores.
+        description: ID del usuario para consultar sus seguidores (MongoDB ObjectId).
         schema:
           type: string
+          example: 6a3d3c37d9726fc5cca163f4
 
     get:
       tags:
@@ -187,14 +202,15 @@ paths:
         "500":
           description: Error al obtener followers.
 
-  /followers/following/{userId}:
+  /api/followers/following/{userId}:
     parameters:
       - name: userId
         in: path
         required: true
-        description: ID del usuario para consultar a quiénes sigue.
+        description: ID del usuario para consultar a quiénes sigue (MongoDB ObjectId).
         schema:
           type: string
+          example: 6a3d3c37d9726fc5cca163f4
 
     get:
       tags:
@@ -210,12 +226,12 @@ paths:
           description: Error al obtener following.
 
   # --- ENDPOINTS DE POSTS ---
-  /posts:
+  /api/posts:
     post:
       tags:
         - Posts
       summary: Crear Post
-      description: Registra una nueva publicación en el sistema asociándola al ID numérico del usuario.
+      description: Registra una nueva publicación en el sistema asociándola al ObjectId del usuario autor. La descripción es obligatoria.
       requestBody:
         required: true
         content:
@@ -225,16 +241,16 @@ paths:
               properties:
                 description:
                   type: string
-                userId:
+                user:
                   type: string
               example:
-                description: "Hola Mundo"
-                userId: 1
+                description: "Hola Mundo desde mi nueva red social documental"
+                user: 6a3d3c37d9726fc5cca163f4
       responses:
         "201":
           description: Post creado con éxito.
         "400":
-          description: Error de validación Joi.
+          description: Error de validación (Descripción vacía o ID de usuario inválido).
         "500":
           description: Error interno del servidor al crear el post.
 
@@ -242,66 +258,43 @@ paths:
       tags:
         - Posts
       summary: Obtener Posts
-      description: Devuelve el listado general de publicaciones incluyendo sus imágenes, etiquetas y el usuario autor de cada una.
+      description: Devuelve el listado general de publicaciones incluyendo sus imágenes, etiquetas y los datos del autor resueltos mediante .populate().
       responses:
         "200":
           description: Lista de posts obtenida con éxito.
         "500":
           description: Error interno del servidor.
 
-  /posts/{id}:
+  /api/posts/{id}:
     parameters:
       - name: id
         in: path
         required: true
-        description: ID numérico del post que se desea consultar, editar o eliminar.
+        description: ID del post (MongoDB ObjectId).
         schema:
           type: string
+          example: 6a3d3da1b2156c7163f5c575
 
     get:
       tags:
         - Posts
       summary: Obtener Post
-      description: Devuelve los datos de una publicación específica incluyendo sus imágenes, etiquetas y los datos del autor.
+      description: Devuelve los datos de una publicación específica resolviendo sus referencias con Populate.
       responses:
         "200":
           description: Post encontrado.
+        "400":
+          description: Formato de ID inválido.
         "404":
           description: Post no encontrado.
         "500":
           description: Error interno del servidor.
 
-    put:
-      tags:
-        - Posts
-      summary: Editar Post
-      description: Modifica el texto de una publicación validando los campos con Joi.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                descripcion:
-                  type: string
-              example:
-                description: "Contenido del post original modificado"
-      responses:
-        "200":
-          description: Post editado con éxito.
-        "400":
-          description: Error de validación Joi.
-        "404":
-          description: Post no encontrado.
-        "500":
-          description: Error interno del servidor al editar el post.
-
     delete:
       tags:
         - Posts
       summary: Eliminar Post
-      description: Borra permanentemente el post de la base de datos por su identificador numérico.
+      description: Borra permanentemente el post de la base de datos de MongoDB.
       responses:
         "200":
           description: Post eliminado con éxito.
@@ -311,20 +304,21 @@ paths:
           description: Error interno del servidor al eliminar el post.
 
   # --- ENDPOINTS DE POSTS IMAGES ---
-  /posts/{id}/images:
+  /api/posts/{id}/images:
     parameters:
       - name: id
         in: path
         required: true
-        description: ID del Post al que pertenecen las imágenes.
+        description: ID del Post al que pertenecen las imágenes (MongoDB ObjectId).
         schema:
           type: string
+          example: 6a3d3da1b2156c7163f5c575
 
     post:
       tags:
         - Posts
       summary: Agregar Imagenes
-      description: Crea un nuevo registro de imagen vinculándolo al ID del post.
+      description: Inserta un nuevo subdocumento de imagen dentro del array embebido 'images' del post (Requerimiento Técnico N°1).
       requestBody:
         required: true
         content:
@@ -335,73 +329,63 @@ paths:
                 url:
                   type: string
               example:
-                url: "https://unsplash.com/es/fotos/un-macbook-con-lineas-de-codigo-en-su-pantalla-en-un-escritorio-ocupado-m_HRfLhgABo"
+                url: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97"
       responses:
         "201":
-          description: Imagen agregada con éxito.
+          description: Imagen agregada con éxito al documento.
         "400":
-          description: Error de validación Joi.
+          description: La URL de la imagen es obligatoria o formato de ID incorrecto.
         "404":
           description: Post no encontrado.
         "500":
-          description: Error interno del servidor al agregar imagenes.
+          description: Error interno al agregar imagenes.
 
-    get:
-      tags:
-        - Posts
-      summary: Obtener Imagenes
-      description: Devuelve el listado de todas las URLs de imágenes asociadas a una publicación específica.
-      responses:
-        "200":
-          description: Lista de imágenes obtenida con éxito.
-        "404":
-          description: Post no encontrado.
-        "500":
-          description: Error interno del servidor al obtener las imagenes.
-
-  /posts/{id}/images/{imageId}:
+  /api/posts/{id}/images/{imageId}:
     parameters:
       - name: id
         in: path
         required: true
-        description: ID del Post al que pertenece la imagen.
+        description: ID del Post (MongoDB ObjectId).
         schema:
           type: string
+          example: 6a3d3da1b2156c7163f5c575
       - name: imageId
         in: path
         required: true
-        description: ID numérico único de la imagen que se desea eliminar.
+        description: ID único del subdocumento de la imagen a remover.
         schema:
           type: string
+          example: 6a3d3da1b2156c7163f5c579
 
     delete:
       tags:
         - Posts
       summary: Eliminar Imagen
-      description: Valida que el post exista, que la imagen exista y luego la borra permanentemente.
+      description: Remueve de forma permanente el subdocumento de imagen especificado del array del post.
       responses:
         "200":
-          description: Imagen eliminada con éxito.
+          description: Imagen eliminada con éxito del documento embebido.
         "404":
           description: Post o Imagen no encontrados.
         "500":
-          description: Error interno del servidor al eliminar las imagenes.
+          description: Error interno del servidor al eliminar la imagen.
 
   # --- ENDPOINTS DE POSTS TAGS ---
-  /posts/{id}/tags:
+  /api/posts/{id}/tags:
     parameters:
       - name: id
         in: path
         required: true
-        description: ID del Post al que se le quieren gestionar las etiquetas.
+        description: ID del Post (MongoDB ObjectId).
         schema:
           type: string
+          example: 6a3d3da1b2156c7163f5c575
 
     post:
       tags:
         - Posts
       summary: Asignar Tags
-      description: Reemplaza o asigna un listado completo de etiquetas a una publicación mediante la tabla intermedia PostTag.
+      description: Reemplaza por completo el array de referencias de etiquetas del post.
       requestBody:
         required: true
         content:
@@ -414,7 +398,7 @@ paths:
                   items:
                     type: string
               example:
-                tagsIds: [1, 2]
+                tagsIds: ["6a3d3da1b2156c7163f5c575", "6a3d3da1b2156c7163f5c580"]
       responses:
         "200":
           description: Tags asignados al post correctamente.
@@ -423,54 +407,58 @@ paths:
         "500":
           description: Error al asignar tags en el post.
 
-  /posts/{id}/tags/{tagId}:
+  /api/posts/{id}/tags/{tagId}:
     parameters:
       - name: id
         in: path
         required: true
-        description: ID del Post.
+        description: ID del Post (MongoDB ObjectId).
         schema:
           type: string
+          example: 6a3d3da1b2156c7163f5c575
       - name: tagId
         in: path
         required: true
-        description: ID de la etiqueta (Tag) que se quiere asociar o desasociar.
+        description: ID de la etiqueta a asociar/desasociar (MongoDB ObjectId).
         schema:
           type: string
+          example: 6a3d3da1b2156c7163f5c580
 
     post:
       tags:
         - Posts
       summary: Asociar Tag
-      description: Añade una etiqueta individual a la publicación usando el método addTag de Sequelize.
+      description: Añade una referencia de etiqueta individual al array del post evitando duplicados mediante el uso de addToSet en Mongoose.
       responses:
         "200":
           description: Tag asociado al post correctamente.
+        "400":
+          description: Formato de ID inválido.
         "404":
-          description: Post o Tag no encontrados.
+          description: Post o Tag no encontrados (Integridad Referencial).
         "500":
-          description: Error al asociar o validar el tag en el post.
+          description: Error al asociar el tag en el post.
 
     delete:
       tags:
         - Posts
       summary: Desasociar Tag
-      description: Remueve una etiqueta individual de la publicación usando el método removeTag de Sequelize sin borrar el Tag por completo.
+      description: Remueve la referencia de la etiqueta del array del post usando el método nativo .pull() de Mongoose, sin eliminar el Tag original del catálogo.
       responses:
         "200":
           description: Tag desasociado correctamente.
         "404":
           description: Post o Tag no encontrados.
         "500":
-          description: Error al desasociar o validar el tag del post.
+          description: Error al desasociar el tag del post.
 
   # --- ENDPOINTS DE COMMENTS ---
-  /comments:
+  /api/comments:
     post:
       tags:
         - Comments
       summary: Crear Comment
-      description: Registra un nuevo comentario asociándolo al ID de un usuario y de un post específicos.
+      description: Registra un nuevo comentario validando la integridad referencial del usuario y del post en MongoDB.
       requestBody:
         required: true
         content:
@@ -480,22 +468,21 @@ paths:
               properties:
                 content:
                   type: string
-                userId:
+                user:
                   type: string
-                postId:
+                post:
                   type: string
-                createdAt:
-                  type: string
-                  format: date-time
               example:
-                content: "Este proyecto lo estamos haciendo con Express!"
-                userId: 1
-                postId: 1
+                content: "Excelente estructura documental, ¡aguante MongoDB!"
+                user: 6a3d3c37d9726fc5cca163f4
+                post: 6a3d3da1b2156c7163f5c575
       responses:
         "201":
           description: Comentario creado con éxito.
         "400":
-          description: Error de validación Joi.
+          description: El contenido es necesario o los IDs de Mongoose tienen formato inválido.
+        "404":
+          description: El usuario o el post especificados no existen.
         "500":
           description: Error al crear el comentario.
 
@@ -503,51 +490,28 @@ paths:
       tags:
         - Comments
       summary: Obtener Comments
-      description: Devuelve el listado de comentarios visibles. Ejecuta automáticamente un filtro que oculta los comentarios más antiguos que los meses configurados en el .env.
+      description: Devuelve el listado de comentarios en base al filtro de tiempo dinámico configurado mediante la variable de entorno LIMIT_MONTHS del archivo .env.
       responses:
         "200":
-          description: Lista de comentarios visibles obtenida con éxito.
+          description: Lista de comentarios vigentes obtenida con éxito.
         "500":
           description: Error al obtener comentarios.
 
-  /comments/{id}:
+  /api/comments/{id}:
     parameters:
       - name: id
         in: path
         required: true
-        description: ID numérico del comentario que se desea editar o eliminar.
+        description: ID del comentario (MongoDB ObjectId).
         schema:
           type: string
-
-    put:
-      tags:
-        - Comments
-      summary: Actualizar Comment
-      description: Modifica el texto de un comentario validando los caracteres mínimos con Joi.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                content:
-                  type: string
-              example:
-                content: "Me sirvió un montón"
-      responses:
-        "200":
-          description: Comentario actualizado con éxito.
-        "404":
-          description: Comentario no encontrado.
-        "500":
-          description: Error al actualizar el comentario.
+          example: 6a3d3da1b2156c7163f5c599
 
     delete:
       tags:
         - Comments
       summary: Eliminar Comment
-      description: Borra permanentemente el comentario de la base de datos de forma segura.
+      description: Borra permanentemente un comentario por su ObjectId.
       responses:
         "200":
           description: Comentario eliminado correctamente.
@@ -557,12 +521,12 @@ paths:
           description: Error al eliminar el comentario.
 
   # --- ENDPOINTS DE TAGS ---
-  /tags:
+  /api/tags:
     post:
       tags:
         - Tags
       summary: Crear Tag
-      description: Registra una nueva etiqueta en la base de datos para que luego pueda ser asignada a las publicaciones.
+      description: Registra un nuevo tag único en el catálogo del sistema usando el middleware verificarTagDuplicado.
       requestBody:
         required: true
         content:
@@ -578,7 +542,7 @@ paths:
         "201":
           description: Tag creado con éxito.
         "400":
-          description: Error de validación Joi.
+          description: El tag ya existe o el nombre no cumple con los caracteres mínimos requeridos.
         "500":
           description: Error al crear el tag.
 
@@ -586,74 +550,49 @@ paths:
       tags:
         - Tags
       summary: Obtener Tags
-      description: Devuelve el listado completo de etiquetas registradas en el sistema.
+      description: Devuelve el listado completo de etiquetas registradas en MongoDB.
       responses:
         "200":
           description: Lista de tags obtenida con éxito.
         "500":
           description: Error interno del servidor al obtener los tags.
 
-  /tags/{id}:
+  /api/tags/{id}:
     parameters:
       - name: id
         in: path
         required: true
-        description: ID numérico de la etiqueta (Tag) que se desea consultar, editar o eliminar.
+        description: ID del tag (MongoDB ObjectId).
         schema:
           type: string
+          example: 6a3d3da1b2156c7163f5c580
 
     get:
       tags:
         - Tags
       summary: Obtener Tag
-      description: Devuelve la información de una etiqueta específica usando el middleware de validación de ID.
+      description: Devuelve la información de una etiqueta específica usando el middleware genérico validarTagId.
       responses:
         "200":
-          description: Tag encontrado.
+          description: Tag encontrado de forma exitosa.
         "400":
-          description: El id del tag debe ser numérico.
+          description: El ID del tag no es un formato válido de MongoDB.
         "404":
           description: Tag no encontrado.
         "500":
           description: Error al obtener el tag.
 
-    put:
-      tags:
-        - Tags
-      summary: Actualizar Tag
-      description: Modifica el nombre de una etiqueta existente verificando que no choque con otro nombre duplicado.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                name:
-                  type: string
-              example:
-                name: "cine"
-      responses:
-        "200":
-          description: Tag actualizado con éxito.
-        "400":
-          description: Error de validación Joi. El id del tag debe ser numérico y no existir previamente.
-        "404":
-          description: Tag no encontrado.
-        "500":
-          description: Error al obtener, verificar o actualizar el tag.
-
     delete:
       tags:
         - Tags
       summary: Eliminar Tag
-      description: Borra permanentemente la etiqueta de la base de datos por su identificador numérico.
+      description: Borra permanentemente una etiqueta del sistema por su ObjectId.
       responses:
         "200":
-          description: Tag eliminado correctamente.
+          description: Tag eliminado correctamente del catálogo.
         "400":
-          description: El id del tag debe ser numérico.
+          description: Formato de ID inválido.
         "404":
           description: Tag no encontrado.
         "500":
-          description: Error al obtener o eliminar el tag.
+          description: Error al eliminar el tag.

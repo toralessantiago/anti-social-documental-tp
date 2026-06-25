@@ -3,7 +3,7 @@ const User = require("../models/User");
 // GET USERS
 const getUsers = async (req, res) => {
   try {
-    const users = await User.find().select("_id nickName email");
+    const users = await User.find().select("_id nickname email");
 
     res.status(200).json({
       message: "Usuarios obtenidos con éxito.",
@@ -20,7 +20,7 @@ const getUsers = async (req, res) => {
 const getUserById = async (req, res) => {
   try {
     const user = await User.findById(req.params.id).select(
-      "_id nickName email"
+      "_id nickname email"
     );
 
     if (!user) {
@@ -44,7 +44,7 @@ const getUserById = async (req, res) => {
 const createUser = async (req, res) => {
   try {
     const existingUser = await User.findOne({
-      nickName: req.body.nickName,
+      nickname: req.body.nickname,
     });
 
     if (existingUser) {
@@ -59,7 +59,7 @@ const createUser = async (req, res) => {
       message: "Usuario creado con éxito.",
       data: {
         id: user._id,
-        nickName: user.nickName,
+        nickname: user.nickname,
         email: user.email,
       },
     });
@@ -81,9 +81,9 @@ const updateUser = async (req, res) => {
       });
     }
 
-    if (req.body.nickName) {
+    if (req.body.nickname) {
       const existingUser = await User.findOne({
-        nickName: req.body.nickName,
+        nickname: req.body.nickname,
       });
 
       if (
@@ -108,7 +108,7 @@ const updateUser = async (req, res) => {
       message: "Usuario actualizado con éxito.",
       data: {
         id: updatedUser._id,
-        nickName: updatedUser.nickName,
+        nickname: updatedUser.nickname,
         email: updatedUser.email,
       },
     });

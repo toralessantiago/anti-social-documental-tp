@@ -1,4 +1,6 @@
+
 # 🚀 UnaHur Anti-Social Net - Backend API
+![Imagen](./assets/ANTI-SOCIALNET.jpeg)
 
 Backend desarrollado para **UnaHur Anti-Social Net**, una red social implementada con **MongoDB y Mongoose** bajo un modelo documental NoSQL. Permite gestionar usuarios, publicaciones, comentarios, etiquetas y relaciones de seguimiento.
 

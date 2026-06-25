@@ -24,10 +24,10 @@ app.use(express.json());
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-app.use("/tags", routerTag);
-app.use("/posts", routerPost);
-app.use("/users", routerUsers);
-app.use("/followers", routerFollowers);
+app.use("/api/tags", routerTag);
+app.use("/api/posts", routerPost);
+app.use("/api/users", routerUsers);
+app.use("/api/followers", routerFollowers);
 
 const startServer = async () => {
   try {

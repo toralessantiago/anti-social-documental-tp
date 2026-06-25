@@ -9,22 +9,21 @@ const {
 
 const { validatePostExists } = require("../middlewares/postMiddleware");
 
-const { validarTagIdEnPost } = require("../middlewares/tagMiddleware");
+const { validarTagId } = require("../middlewares/tagMiddleware");
 
-// rutas para tags
 router.post("/:id/tags", validatePostExists, assignTags);
 
 router.post(
   "/:id/tags/:tagId",
   validatePostExists,
-  validarTagIdEnPost,
+  validarTagId, 
   associateTag,
 );
 
 router.delete(
   "/:id/tags/:tagId",
   validatePostExists,
-  validarTagIdEnPost,
+  validarTagId, 
   dissociateTag,
 );
 

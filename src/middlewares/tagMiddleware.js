@@ -15,15 +15,15 @@ const validarTag = (req, res, next) => {
 
 const validarTagId = async (req, res, next) => {
   try {
-    const { id } = req.params;
+    const idAsignado = req.params.tagId || req.params.id;
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
+    if (!mongoose.Types.ObjectId.isValid(idAsignado)) {
       return res.status(400).json({
         message: "El ID del tag debe ser un formato válido de MongoDB",
       });
     }
 
-    const tag = await Tag.findById(id);
+    const tag = await Tag.findById(idAsignado);
 
     if (!tag) {
       return res.status(404).json({
@@ -32,7 +32,6 @@ const validarTagId = async (req, res, next) => {
     }
 
     req.tag = tag;
-
     next();
   } catch (error) {
     res.status(500).json({
@@ -92,6 +91,5 @@ const validarTagIdEnPost = async (req, res, next) => {
 module.exports = {
   validarTag,
   validarTagId,
-  verificarTagDuplicado,
-  validarTagIdEnPost,
+  verificarTagDuplicado
 };

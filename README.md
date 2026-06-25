@@ -1,74 +1,142 @@
-[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/r_d7sOXe)
-# UnaHur - Red Anti-Social - 2026 - C1
 
-Se solicita el modelado y desarrollo de un sistema backend para una red social llamada **“UnaHur Anti-Social Net”**, inspirada en plataformas populares que permiten a los usuarios realizar publicaciones y recibir comentarios sobre las mismas.
-
+# 🚀 UnaHur Anti-Social Net - Backend API
 ![Imagen](./assets/ANTI-SOCIALNET.jpeg)
 
-# Contexto del Proyecto
+Backend desarrollado para **UnaHur Anti-Social Net**, una red social implementada con **MongoDB y Mongoose** bajo un modelo documental NoSQL. Permite gestionar usuarios, publicaciones, comentarios, etiquetas y relaciones de seguimiento.
 
-En una primera reunión con los sponsors del proyecto, se definieron los siguientes requerimientos para el desarrollo de un **MVP (Producto Mínimo Viable)**:
+---
 
-- El sistema debe permitir que un usuario registrado realice una publicación (post), incluyendo **obligatoriamente una descripción**. De forma opcional, se podrán asociar **una o más imágenes** a dicha publicación.
+## 📋 Funcionalidades
 
-- Las publicaciones pueden recibir **comentarios** por parte de otros usuarios.
+* Gestión de usuarios con `nickname` único.
+* Creación y administración de publicaciones.
+* Soporte para imágenes asociadas a posts mediante subdocumentos embebidos.
+* Sistema de comentarios con filtrado automático de comentarios antiguos.
+* Gestión de etiquetas compartidas entre múltiples publicaciones.
+* Relación de seguidores y seguidos entre usuarios.
 
-- Las publicaciones pueden estar asociadas a **etiquetas (tags)**. Una misma etiqueta puede estar vinculada a múltiples publicaciones.
+---
 
-- Es importante que los **comentarios más antiguos que X meses** (valor configurable mediante variables de entorno, por ejemplo, 6 meses) **no se muestren** en la visualización de los posteos.
+## 🛠️ Tecnologías
 
-####
+* Node.js
+* Express.js
+* MongoDB
+* Mongoose
+* Swagger UI
+* dotenv
 
-# Entidades y Reglas de Negocio
+---
 
-Los sponsors definieron los siguientes nombres y descripciones para las entidades:
+## 📂 Estructura del Proyecto
 
-- **User**: Representa a los usuarios registrados en el sistema. El campo `nickname` debe ser **único** y funcionará como identificador principal del usuario.
+```text
+src/
+├── config/
+├── controllers/
+├── middlewares/
+├── models/
+├── routes/
+├── swagger.yml
+└── app.js
+```
 
-- **Post**: Publicación realizada por un usuario en una fecha determinada que contiene el texto que desea publicar. Puede tener **cero o más imágenes** asociadas. Debe contemplarse la posibilidad de **agregar o eliminar imágenes** posteriormente.
+---
 
-- **Post_Images**: Entidad que registra las imágenes asociadas a los posts. Para el MVP, solo se requiere almacenar la **URL de la imagen alojada**.
+## ⚙️ Instalación
 
-- **Comment**: Comentario que un usuario puede realizar sobre una publicación. Incluye la fecha en la que fue realizado y una indicación de si está **visible o no**, dependiendo de la configuración (X meses).
+### Clonar repositorio
 
-- **Tag**: Etiqueta que puede ser asignada a un post. Una etiqueta puede estar asociada a **muchos posts**, y un post puede tener **múltiples etiquetas**.
+```bash
+git clone https://github.com/EP-UnaHur-2026C1/anti-social-documental-tp-persistenciadeestrategia.git
+cd anti-social-documental-tp-persistenciadeestrategia
+```
 
-# Requerimientos Técnicos
+### Instalar dependencias
 
-1. **Modelado de Datos**
+```bash
+npm install
+```
 
-   - Diseñar el modelo documental que represtente todas las entidades definidas por los sponsor del proyecto. Queda a su criterio si usan relaciones embebidas o relaciones referenciadas a otros documentos.
+### Configurar variables de entorno
 
-### Ejemplo referenciadas
+```env
+PORT=3000
+MONGO_URI=mongodb://localhost:27017/anti-social-documental
+LIMIT_MONTHS=6
+```
 
-![referenciadas](./assets/Referenciada.png)
+### Ejecutar proyecto
 
-2. **Desarrollo del Backend**
+```bash
+npm run dev
+```
 
-   - Crear los **endpoints CRUD** necesarios para cada entidad.
+* API: `http://localhost:3000`
+* Swagger: `http://localhost:3000/api-docs`
 
-   - Implementar las rutas necesarias para gestionar las relaciones entre entidades (por ejemplo: asociar imágenes a un post, etiquetas a una publicación, etc.).
+---
 
-   - Desarrollar las validaciones necesarias para asegurar la integridad de los datos (schemas, validaciones de integridad referencial).
+## 🗄️ Decisiones de Persistencia
 
-   - Desarrollar las funciones controladoras con una única responsabiliad evitando realizar comprobaciones innecesarias en esta parte del código.
+### Datos Embebidos
 
-3. **Configuración y Portabilidad**
+Las imágenes de las publicaciones se almacenan como subdocumentos dentro de cada post, evitando consultas adicionales.
 
-   - La configuración de las variables del motor deben ser por configuración e instalación de dependencias adecuadas.
+### Datos Referenciados
 
-   - El sistema debe permitir configurar el **puerto de ejecución y variables de entorno** fácilmente.
+Los comentarios y etiquetas se almacenan en colecciones independientes y se relacionan mediante `ObjectId`, permitiendo consultas más eficientes y documentos más livianos.
 
-4. **Documentación**
+---
 
-   - Generar la documentación de la API utilizando **Swagger (formato YAML)**, incluyendo todos los endpoints definidos.
+## 📌 Endpoints Principales
 
-5. **Colecciones de Prueba**
+| Método | Ruta             | Descripción                  |
+| ------ | ---------------- | ---------------------------- |
+| POST   | `/api/users`     | Crear usuario                |
+| GET    | `/api/users/:id` | Obtener usuario              |
+| PUT    | `/api/users/:id` | Actualizar usuario           |
+| DELETE | `/api/users/:id` | Eliminar usuario             |
+| POST   | `/api/posts`     | Crear publicación            |
+| GET    | `/api/posts`     | Listar publicaciones         |
+| DELETE | `/api/posts/:id` | Eliminar publicación         |
+| POST   | `/api/comments`  | Crear comentario             |
+| GET    | `/api/comments`  | Obtener comentarios visibles |
+| POST   | `/api/tags`      | Crear etiqueta               |
 
-   - Entregar las colecciones necesarias para realizar pruebas (por ejemplo, colecciones de Postman o archivos JSON de ejemplo).
+---
 
-# Bonus
+## 🎁 Puntos Bonus
 
-- Hace el upload de las imganes que se asocian a un POST que lo guarden en una carpeta de imagenes dentro del servidor web.
-- ¿Cómo modelarías que un usuario pueda "seguir" a otros usuarios, y a su vez ser seguido por muchos? Followers
-- Con la información de los post no varia muy seguido que estrategias podrian utilizar la que la información no sea constantemente consultada desde la base de datos.
+### Sistema de Seguidores
+
+Implementado mediante referencias entre documentos `User` utilizando los campos:
+
+```javascript
+followers: [ObjectId],
+following: [ObjectId]
+```
+
+### Optimización Propuesta
+
+Se propone incorporar **Redis** como capa de caché para almacenar publicaciones frecuentes y reducir consultas a MongoDB.
+
+---
+
+## 👨‍💻 Integrantes
+
+* Estefania Abigail Almirón
+* Sofía Agustina Gómez
+* Gonzalo Martin Herlein
+* Santiago Roberto Torales
+* Thomas Vai
+
+---
+
+## 🎓 Universidad
+
+**Universidad Nacional de Hurlingham (UNAHUR)**
+
+**Materia:** Estrategias de Persistencia
+
+**Año:** 2026

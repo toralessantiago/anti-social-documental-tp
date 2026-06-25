@@ -43,7 +43,7 @@ const actualizarTag = async (req, res) => {
     const { id } = req.params;
 
     const tagActualizado = await Tag.findByIdAndUpdate(id, req.body, {
-      new: true,
+      returnDocument: "after",
       runValidators: true,
     });
 
@@ -63,7 +63,9 @@ const eliminarTag = async (req, res) => {
   try {
     const { id } = req.params;
 
-    await Tag.findByIdAndDelete(id);
+    await Tag.findByIdAndDelete(id, {
+      returnDocument: "after",
+    });
 
     res.status(200).json({
       message: "Tag eliminado correctamente.",

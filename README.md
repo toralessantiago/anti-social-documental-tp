@@ -23,7 +23,7 @@ En una primera reunión con los sponsors del proyecto, se definieron los siguien
 
 Los sponsors definieron los siguientes nombres y descripciones para las entidades:
 
-- **User**: Representa a los usuarios registrados en el sistema. El campo `nickName` debe ser **único** y funcionará como identificador principal del usuario.
+- **User**: Representa a los usuarios registrados en el sistema. El campo `nickname` debe ser **único** y funcionará como identificador principal del usuario.
 
 - **Post**: Publicación realizada por un usuario en una fecha determinada que contiene el texto que desea publicar. Puede tener **cero o más imágenes** asociadas. Debe contemplarse la posibilidad de **agregar o eliminar imágenes** posteriormente.
 

@@ -1,151 +1,85 @@
 const User = require("../models/User");
 
-// GET USERS
-const getUsers = async (req, res) => {
+// SEGUIR A UN USUARIO (POST)
+const followUser = async (req, res) => {
   try {
-    const users = await User.find().select("_id nickName email");
+    const { userId, targetId } = req.params;
 
-    res.status(200).json({
-      message: "Usuarios obtenidos con éxito.",
-      data: users,
-    });
+    if (userId === targetId) {
+      return res.status(400).json({ error: "No podés seguirte a vos mismo." });
+    }
+
+    const user = await User.findById(userId);
+    const targetUser = await User.findById(targetId);
+
+    if (!user || !targetUser) {
+      return res.status(404).json({ error: "Usuario no encontrado." });
+    }
+
+    await User.findByIdAndUpdate(userId, { $addToSet: { following: targetId } });
+    await User.findByIdAndUpdate(targetId, { $addToSet: { followers: userId } });
+
+    res.status(200).json({ message: "Usuario seguido con éxito." });
   } catch (error) {
-    res.status(500).json({
-      error: "Error al obtener usuarios.",
-    });
+    res.status(500).json({ error: "Error al seguir al usuario." });
   }
 };
 
-// GET USER BY ID
-const getUserById = async (req, res) => {
+// DEJAR DE SEGUIR (DELETE)
+const unfollowUser = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id).select(
-      "_id nickName email"
-    );
+    const { userId, targetId } = req.params;
+
+    await User.findByIdAndUpdate(userId, { $pull: { following: targetId } });
+    await User.findByIdAndUpdate(targetId, { $pull: { followers: userId } });
+
+    res.status(200).json({ message: "Has dejado de seguir al usuario." });
+  } catch (error) {
+    res.status(500).json({ error: "Error al dejar de seguir al usuario." });
+  }
+};
+
+// OBTENER SEGUIDOS (GET)
+const getFollowing = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const user = await User.findById(userId).populate("following", "_id nickname email");
 
     if (!user) {
-      return res.status(404).json({
-        error: "Usuario no encontrado.",
-      });
+      return res.status(404).json({ error: "Usuario no encontrado." });
     }
 
     res.status(200).json({
-      message: "Usuario obtenido con éxito.",
-      data: user,
+      message: "Lista de seguidos obtenida con éxito.",
+      data: user.following,
     });
   } catch (error) {
-    res.status(500).json({
-      error: "Error al obtener usuario.",
-    });
+    res.status(500).json({ error: "Error al obtener la lista de seguidos." });
   }
 };
 
-// CREATE USER
-const createUser = async (req, res) => {
+// OBTENER SEGUIDORES (GET)
+const getFollowers = async (req, res) => {
   try {
-    const existingUser = await User.findOne({
-      nickName: req.body.nickName,
-    });
-
-    if (existingUser) {
-      return res.status(400).json({
-        error: "El nickname ya existe.",
-      });
-    }
-
-    const user = await User.create(req.body);
-
-    res.status(201).json({
-      message: "Usuario creado con éxito.",
-      data: {
-        id: user._id,
-        nickName: user.nickName,
-        email: user.email,
-      },
-    });
-  } catch (error) {
-    res.status(500).json({
-      error: "Error al crear usuario.",
-    });
-  }
-};
-
-// UPDATE USER
-const updateUser = async (req, res) => {
-  try {
-    const user = await User.findById(req.params.id);
+    const { userId } = req.params;
+    const user = await User.findById(userId).populate("followers", "_id nickname email");
 
     if (!user) {
-      return res.status(404).json({
-        error: "Usuario no encontrado.",
-      });
+      return res.status(404).json({ error: "Usuario no encontrado." });
     }
-
-    if (req.body.nickName) {
-      const existingUser = await User.findOne({
-        nickName: req.body.nickName,
-      });
-
-      if (
-        existingUser &&
-        existingUser._id.toString() !== user._id.toString()
-      ) {
-        return res.status(400).json({
-          error: "El nickname ya existe.",
-        });
-      }
-    }
-
-    const updatedUser = await User.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      {
-        new: true,
-      }
-    );
 
     res.status(200).json({
-      message: "Usuario actualizado con éxito.",
-      data: {
-        id: updatedUser._id,
-        nickName: updatedUser.nickName,
-        email: updatedUser.email,
-      },
+      message: "Lista de seguidores obtenida con éxito.",
+      data: user.followers,
     });
   } catch (error) {
-    res.status(500).json({
-      error: "Error al actualizar usuario.",
-    });
-  }
-};
-
-// DELETE USER
-const deleteUser = async (req, res) => {
-  try {
-    const user = await User.findById(req.params.id);
-
-    if (!user) {
-      return res.status(404).json({
-        error: "Usuario no encontrado.",
-      });
-    }
-
-    await User.findByIdAndDelete(req.params.id);
-
-    res.status(200).json({
-      message: "Usuario eliminado con éxito.",
-    });
-  } catch (error) {
-    res.status(500).json({
-      error: "Error al eliminar usuario.",
-    });
+    res.status(500).json({ error: "Error al obtener los seguidores." });
   }
 };
 
 module.exports = {
-  getUsers,
-  getUserById,
-  createUser,
-  updateUser,
-  deleteUser,
+  followUser,
+  unfollowUser,
+  getFollowers,
+  getFollowing,
 };

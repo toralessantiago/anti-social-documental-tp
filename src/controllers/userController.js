@@ -35,24 +35,33 @@ const getUserById = async (req, res) => {
 // CREATE USER
 const createUser = async (req, res) => {
   try {
-    const existingUser = await User.findOne({ nickname: req.body.nickname }); 
+    const { nickname, email, password } = req.body;
 
-    if (existingUser) {
-      return res.status(400).json({ error: "El nickname ya existe." });
-    }
+    // Creamos el usuario en MongoDB
+    const newUser = await User.create({
+      nickname,
+      email,
+      password,
+    });
 
-    const user = await User.create(req.body);
-
-    res.status(201).json({
+    return res.status(201).json({
       message: "Usuario creado con éxito.",
-      data: {
-        id: user._id,
-        nickname: user.nickname, 
-        email: user.email,
-      },
+      data: newUser,
     });
   } catch (error) {
-    res.status(500).json({ error: "Error al crear usuario." });
+    // se detecta el error de clave duplicada de mongodb: 11000
+    if (error.code === 11000) {
+      const campoDuplicado = Object.keys(error.keyValue)[0];
+      
+      return res.status(400).json({
+        message: `El ${campoDuplicado} ya se encuentra registrado por otro usuario.`,
+      });
+    }
+
+    return res.status(500).json({
+      message: "Error al crear usuario.",
+      error: error.message,
+    });
   }
 };
 

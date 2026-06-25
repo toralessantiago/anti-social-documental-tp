@@ -6,7 +6,7 @@ const path = require("path");
 const YAML = require("js-yaml");
 const swaggerUi = require("swagger-ui-express");
 
-const conectarDB = require("./config/db");
+const connectDB = require("./config/db");
 
 const routerTag = require("./routes/tagRoutes");
 const routerPost = require("./routes/postRoutes");
@@ -17,7 +17,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 const swaggerDocument = YAML.load(
-  fs.readFileSync(path.join(__dirname, "swagger.yml"), "utf8")
+  fs.readFileSync(path.join(__dirname, "../swagger.yaml"), "utf8")
 );
 
 app.use(express.json());

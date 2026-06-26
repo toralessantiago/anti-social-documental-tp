@@ -11,6 +11,9 @@ const {
   getPostById,
   updatePost,
   deletePost,
+  addImage,
+  removeImage,
+  updateImage
 } = require("../controllers/postController");
 
 const { validatePostExists, validatePostBody } = require("../middlewares/postMiddleware");
@@ -42,6 +45,26 @@ router.delete(
   validatePostExists,
   validarTagId, 
   dissociateTag,
+);
+
+router.post(
+  "/:id/images",
+  upload.single("image"),
+  validatePostExists,
+  addImage
+);
+
+router.delete(
+  "/:id/images/:imageId",
+  validatePostExists,
+  removeImage
+);
+
+router.put(
+  "/:id/images/:imageId",
+  upload.single("image"),
+  validatePostExists,
+  updateImage
 );
 
 module.exports = router;

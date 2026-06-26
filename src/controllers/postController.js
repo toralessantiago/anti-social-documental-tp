@@ -68,18 +68,31 @@ const dissociateTag = async (req, res) => {
 //Contorladores para post
 const createPost = async (req, res) => {
   try {
-    const { description, user, tags } = req.body;
+    const { description, user, tags, images: imageUrls } = req.body;
 
-    // Convierte los archivos subidos por Multer
-    // al formato utilizado por el esquema Post
-    const images = req.files.map((file) => ({
-      url: `/uploads/posts/${file.filename}`,
-    }));
+    // 1. imágenes subidas con multer
+    const uploadedImages = req.files
+      ? req.files.map((file) => ({
+          url: `/uploads/posts/${file.filename}`,
+        }))
+      : [];
+
+    // 2. imágenes por URL (body)
+    let bodyImages = [];
+
+    if (imageUrls) {
+      // puede venir string o array
+      const urls = Array.isArray(imageUrls)
+        ? imageUrls
+        : [imageUrls];
+
+      bodyImages = urls.map((url) => ({ url }));
+    }
 
     const post = await Post.create({
       description,
       user,
-      images,
+      images: [...uploadedImages, ...bodyImages],
       tags,
     });
 
@@ -152,6 +165,105 @@ const deletePost = async (req, res) => {
   }
 };
 
+const addImage = async (req, res) => {
+  try {
+    const post = req.post;
+    const { url } = req.body;
+
+    // 1. si viene archivo multer
+    if (req.file) {
+      post.images.push({
+        url: `/uploads/posts/${req.file.filename}`,
+      });
+    }
+
+    // 2. si viene URL por body
+    if (url) {
+      post.images.push({ url });
+    }
+
+    await post.save();
+
+    res.status(200).json({
+      message: "Imagen agregada correctamente",
+      data: post,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Error al agregar imagen",
+      error: error.message,
+    });
+  }
+};
+
+const removeImage = async (req, res) => {
+  try {
+    const post = req.post;
+    const { imageId } = req.params;
+
+    const image = post.images.id(imageId);
+
+    if (!image) {
+      return res.status(404).json({
+        message: "Imagen no encontrada",
+      });
+    }
+
+    image.deleteOne();
+
+    await post.save();
+
+    res.status(200).json({
+      message: "Imagen eliminada correctamente",
+      data: post,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Error al eliminar imagen",
+      error: error.message,
+    });
+  }
+};
+
+const updateImage = async (req, res) => {
+  try {
+    const post = req.post;
+    const { imageId } = req.params;
+    const { url } = req.body;
+
+    const image = post.images.id(imageId);
+
+    if (!image) {
+      return res.status(404).json({
+        message: "Imagen no encontrada",
+      });
+    }
+
+    // reemplazo híbrido
+    if (req.file) {
+      image.url = `/uploads/posts/${req.file.filename}`;
+    } else if (url) {
+      image.url = url;
+    } else {
+      return res.status(400).json({
+        message: "Debes enviar una imagen o URL",
+      });
+    }
+
+    await post.save();
+
+    res.status(200).json({
+      message: "Imagen actualizada correctamente",
+      data: post,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Error al actualizar imagen",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   assignTags,
   associateTag,
@@ -161,4 +273,7 @@ module.exports = {
   getPostById,
   updatePost,
   deletePost,
+  addImage,
+  removeImage,
+  updateImage
 };

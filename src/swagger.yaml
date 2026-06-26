@@ -290,6 +290,39 @@ paths:
         "500":
           description: Error interno del servidor.
 
+    put:
+      tags:
+        - Posts
+      summary: Actualizar Post
+      description: Modifica los campos principales de una publicación existente.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - user
+              properties:
+                user:
+                  type: string
+                  description: ID de Mongoose del usuario dueño del post (Obligatorio por middleware).
+                description:
+                  type: string
+                  description: Nuevo contenido de texto para la descripción de la publicación.
+              example:
+                user: "6a3d85b6e9c5426beccf58fc"
+                description: "Contenido del post original modificado"
+      responses:
+        "200":
+          description: Post actualizado con éxito. Devuelve el objeto populado.
+        "400":
+          description: Error de validación (ej. falta el campo 'user' que exige el middleware).
+        "404":
+          description: Post no encontrado en la base de datos.
+        "500":
+          description: Error interno del servidor al intentar actualizar.
+
     delete:
       tags:
         - Posts
@@ -356,6 +389,41 @@ paths:
         schema:
           type: string
           example: 6a3d3da1b2156c7163f5c579
+
+    put:
+      tags:
+        - Posts
+      summary: Actualizar Imagen de un Post
+      description: Reemplaza una imagen específica dentro de un post. Permite un archivo físico usando form-data (Multer) o URL mediante un objeto JSON.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                url:
+                  type: string
+                  description: Enlace de internet de la nueva imagen a asociar.
+              example:
+                url: "https://unsplash.com/es/fotos/ordenador-portatil-junto-al-monitor-con-teclado-y-raton-EJMTKCZ00I0"
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                image:
+                  type: string
+                  format: binary
+                  description: Archivo físico de imagen a subir desde la computadora (procesado por Multer).
+      responses:
+        "200":
+          description: Imagen actualizada correctamente. Devuelve el post completo modificado.
+        "400":
+          description: Error de solicitud (ej. no se envió ni un archivo físico ni una URL de texto).
+        "404":
+          description: El post o el ID de la imagen específica no fueron encontrados en la base de datos.
+        "500":
+          description: Error interno en el servidor al intentar procesar o guardar la imagen.
 
     delete:
       tags:

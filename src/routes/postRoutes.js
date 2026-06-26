@@ -48,6 +48,7 @@ router.delete(
   dissociateTag,
 );
 
+// rutas para images
 router.post(
   "/:id/images",
   upload.single("image"),

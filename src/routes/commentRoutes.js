@@ -1,6 +1,19 @@
 const { Router } = require("express");
-const { getComments, getCommentsByPost, createComment, updateComment, deleteComment } = require('../controllers/commentController');
-const { validateComment, validateCommentId, validateUpdateComment } = require('../middlewares/validateComment');
+
+const {
+  getComments,
+  getCommentsByPost,
+  createComment,
+  updateComment,
+  deleteComment,
+} = require("../controllers/commentController");
+
+const {
+  validateComment,
+  validateCommentId,
+  validateUpdateComment,
+} = require("../middlewares/validateComment");
+
 const router = Router();
 
 router.get("/", getComments);

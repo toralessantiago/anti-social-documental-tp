@@ -5,6 +5,7 @@ const YAML = require("js-yaml");
 const swaggerUi = require("swagger-ui-express");
 
 const connectDB = require("./config/db");
+const { connectRedis } = require("./config/redis");
 
 const routerTags = require("./routes/tagRoutes");
 const routerPosts = require("./routes/postRoutes");
@@ -37,7 +38,8 @@ app.use("/api/comments", routerComments);
 const startServer = async () => {
   try {
     await connectDB();
-
+    await connectRedis();
+    
     app.listen(PORT, () => {
       console.log(`Servidor en http://localhost:${PORT}`);
       console.log(`Swagger en http://localhost:${PORT}/api-docs`);

@@ -1,4 +1,5 @@
 const Post = require("../models/Post");
+const { redisClient } = require("../config/redis");
 
 // controladores para tags
 const assignTags = async (req, res) => {
@@ -68,18 +69,15 @@ const createPost = async (req, res) => {
   try {
     const { description, user, tags, images: imageUrls } = req.body;
 
-    // 1. imágenes subidas con multer
     const uploadedImages = req.files
       ? req.files.map((file) => ({
           url: `/uploads/posts/${file.filename}`,
         }))
       : [];
 
-    // 2. imágenes por URL (body)
     let bodyImages = [];
 
     if (imageUrls) {
-      // puede venir string o array
       const urls = Array.isArray(imageUrls) ? imageUrls : [imageUrls];
 
       bodyImages = urls.map((url) => ({ url }));
@@ -92,17 +90,26 @@ const createPost = async (req, res) => {
       tags,
     });
 
+    await redisClient.del("posts_feed");
+
     res.status(201).json(post);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
-
 const getPosts = async (req, res) => {
   try {
+    const cachedPosts = await redisClient.get("posts_feed");
+
+    if (cachedPosts) {
+      return res.json(JSON.parse(cachedPosts));
+    }
+
     const posts = await Post.find()
       .populate("user", "nickname email") // Protege contraseña
       .populate("tags", "name");
+
+    await redisClient.setEx("posts_feed", 60, JSON.stringify(posts));
 
     res.json(posts);
   } catch (error) {

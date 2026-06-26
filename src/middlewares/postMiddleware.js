@@ -29,6 +29,32 @@ const validatePostExists = async (req, res, next) => {
   }
 };
 
+// validar body al crear post
+const validatePostBody = (req, res, next) => {
+  const { description, user } = req.body;
+
+  if (!description || description.trim() === "") {
+    return res.status(400).json({
+      message: "La descripción es obligatoria",
+    });
+  }
+
+  if (!user) {
+    return res.status(400).json({
+      message: "El usuario es obligatorio",
+    });
+  }
+
+  if (!mongoose.Types.ObjectId.isValid(user)) {
+    return res.status(400).json({
+      message: "UserId inválido",
+    });
+  }
+
+  next();
+};
+
 module.exports = {
   validatePostExists,
+  validatePostBody
 };

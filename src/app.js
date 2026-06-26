@@ -14,7 +14,7 @@ const routerUsers = require("./routes/userRoutes");
 const routerFollowers = require("./routes/followerRoutes");
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 
 const swaggerDocument = YAML.load(
   fs.readFileSync(path.join(__dirname, "swagger.yml"), "utf8")

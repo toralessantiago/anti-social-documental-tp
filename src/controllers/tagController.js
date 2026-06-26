@@ -1,6 +1,6 @@
 const Tag = require("../models/Tag");
 
-const obtenerTags = async (req, res) => {
+const getTags = async (req, res) => {
   try {
     const tags = await Tag.find().select("-createdAt -updatedAt -__v");
 
@@ -13,7 +13,7 @@ const obtenerTags = async (req, res) => {
   }
 };
 
-const obtenerTag = async (req, res) => {
+const getTagById = async (req, res) => {
   const tag = req.tag;
 
   res.status(200).json({
@@ -22,7 +22,7 @@ const obtenerTag = async (req, res) => {
   });
 };
 
-const crearTag = async (req, res) => {
+const createTag = async (req, res) => {
   try {
     const tagNuevo = await Tag.create(req.body);
 
@@ -38,7 +38,7 @@ const crearTag = async (req, res) => {
   }
 };
 
-const actualizarTag = async (req, res) => {
+const updateTag = async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -59,7 +59,7 @@ const actualizarTag = async (req, res) => {
   }
 };
 
-const eliminarTag = async (req, res) => {
+const deleteTag = async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -79,9 +79,9 @@ const eliminarTag = async (req, res) => {
 };
 
 module.exports = {
-  obtenerTags,
-  obtenerTag,
-  crearTag,
-  actualizarTag,
-  eliminarTag,
+  getTags,
+  getTagById,
+  createTag,
+  updateTag,
+  deleteTag,
 };

@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const Tag = require("../models/Tag");
 
-const validarTag = (req, res, next) => {
+const validateTag = (req, res, next) => {
   const { name } = req.body;
 
   if (!name || name.trim() === "") {
@@ -13,7 +13,7 @@ const validarTag = (req, res, next) => {
   next();
 };
 
-const validarTagId = async (req, res, next) => {
+const validateTagId = async (req, res, next) => {
   try {
     const idAsignado = req.params.tagId || req.params.id;
 
@@ -40,7 +40,7 @@ const validarTagId = async (req, res, next) => {
   }
 };
 
-const verificarTagDuplicado = async (req, res, next) => {
+const verifyDuplicateTag = async (req, res, next) => {
   try {
     const { name } = req.body;
 
@@ -60,36 +60,8 @@ const verificarTagDuplicado = async (req, res, next) => {
   }
 };
 
-const validarTagIdEnPost = async (req, res, next) => {
-  try {
-    const { tagId } = req.params;
-
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({
-        message: "El ID del tag debe ser un formato válido de MongoDB",
-      });
-    }
-
-    const tag = await Tag.findById(tagId);
-
-    if (!tag) {
-      return res.status(404).json({
-        message: "Tag no encontrado",
-      });
-    }
-
-    req.tag = tag;
-
-    next();
-  } catch (error) {
-    res.status(500).json({
-      error: "Error al validar el tag",
-    });
-  }
-};
-
 module.exports = {
-  validarTag,
-  validarTagId,
-  verificarTagDuplicado
+  validateTag,
+  validateTagId,
+  verifyDuplicateTag,
 };

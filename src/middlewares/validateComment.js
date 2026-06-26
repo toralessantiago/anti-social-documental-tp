@@ -4,7 +4,7 @@ const Post = require('../models/Post')
 const commentSchema = require('../schemas/commentSchema')
 const updateCommentSchema = require('../schemas/updateCommentSchema')
 
-const validarComment = async (req, res, next) => {
+const validateComment = async (req, res, next) => {
     const { error } = commentSchema.validate(req.body)
     if (error) {
         return res.status(400).json({ error: error.details[0].message })
@@ -25,7 +25,7 @@ const validarComment = async (req, res, next) => {
     next()
 }
 
-const validarCommentId = async (req, res, next) => {
+const validateCommentId = async (req, res, next) => {
     try {
         const { id } = req.params
         const comentario = await Comment.findById(id)
@@ -39,7 +39,7 @@ const validarCommentId = async (req, res, next) => {
     }
 }
 
-const validarUpdateComment = (req, res, next) => {
+const validateUpdateComment = (req, res, next) => {
     const { error } = updateCommentSchema.validate(req.body)
     if (error) {
         return res.status(400).json({ error: error.details[0].message })
@@ -48,7 +48,7 @@ const validarUpdateComment = (req, res, next) => {
 }
 
 module.exports = {
-    validarComment,
-    validarCommentId,
-    validarUpdateComment
+    validateComment,
+    validateCommentId,
+    validateUpdateComment
 }

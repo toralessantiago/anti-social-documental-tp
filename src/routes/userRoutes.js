@@ -2,9 +2,9 @@ const express = require("express");
 const router = express.Router();
 
 const {
-  validarUser,
-  validarUserUpdate,
-} = require("../middlewares/validarUser");
+  validateUser,
+  validateUserUpdate,
+} = require("../middlewares/validateUser");
 
 const {
   getUsers,
@@ -21,10 +21,10 @@ router.get("/", getUsers);
 router.get("/:id", getUserById);
 
 // CREATE USER
-router.post("/", validarUser, createUser);
+router.post("/", validateUser, createUser);
 
 // UPDATE USER
-router.put("/:id", validarUserUpdate, updateUser);
+router.put("/:id", validateUserUpdate, updateUser);
 
 // DELETE USER
 router.delete("/:id", deleteUser);

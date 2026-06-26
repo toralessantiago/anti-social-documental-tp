@@ -2,33 +2,27 @@ const { Router } = require("express");
 const router = Router();
 
 const {
-  obtenerTags,
-  obtenerTag,
-  crearTag,
-  actualizarTag,
-  eliminarTag,
+  getTags,
+  getTagById,
+  createTag,
+  updateTag,
+  deleteTag,
 } = require("../controllers/tagController");
 
 const {
-  validarTag,
-  validarTagId,
-  verificarTagDuplicado,
+  validateTag,
+  validateTagId,
+  verifyDuplicateTag,
 } = require("../middlewares/tagMiddleware");
 
-router.get("/", obtenerTags);
+router.get("/", getTags);
 
-router.get("/:id", validarTagId, obtenerTag);
+router.get("/:id", validateTagId, getTagById);
 
-router.post("/", validarTag, verificarTagDuplicado, crearTag);
+router.post("/", validateTag, verifyDuplicateTag, createTag);
 
-router.put(
-  "/:id",
-  validarTagId,
-  validarTag,
-  verificarTagDuplicado,
-  actualizarTag,
-);
+router.put("/:id", validateTagId, validateTag, verifyDuplicateTag, updateTag);
 
-router.delete("/:id", validarTagId, eliminarTag);
+router.delete("/:id", validateTagId, deleteTag);
 
 module.exports = router;

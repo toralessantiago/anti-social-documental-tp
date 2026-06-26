@@ -1,6 +1,6 @@
 const Comment = require("../models/Comment");
 
-const obtenerComentarios = async (req, res) => {
+const getComments = async (req, res) => {
   try {
     const meses = parseInt(process.env.LIMIT_MONTHS) || 6;
     const fechaLimite = new Date();
@@ -17,7 +17,7 @@ const obtenerComentarios = async (req, res) => {
   }
 };
 
-const obtenerComentariosPorPost = async (req, res) => {
+const getCommentsByPost = async (req, res) => {
   try {
     const meses = parseInt(process.env.LIMIT_MONTHS) || 6;
     const fechaLimite = new Date();
@@ -37,7 +37,7 @@ const obtenerComentariosPorPost = async (req, res) => {
   }
 };
 
-const crearComentario = async (req, res) => {
+const createComment = async (req, res) => {
   try {
     const { content, user, post, createdAt } = req.body;
 
@@ -54,7 +54,7 @@ const crearComentario = async (req, res) => {
   }
 };
 
-const actualizarComentario = async (req, res) => {
+const updateComment = async (req, res) => {
   try {
     const { content } = req.body;
     const comentario = await Comment.findByIdAndUpdate(
@@ -68,7 +68,7 @@ const actualizarComentario = async (req, res) => {
   }
 };
 
-const eliminarComentario = async (req, res) => {
+const deleteComment = async (req, res) => {
   try {
     await Comment.findByIdAndDelete(req.comentario._id);
     res.status(200).json({ message: "Comentario eliminado correctamente." });
@@ -78,9 +78,9 @@ const eliminarComentario = async (req, res) => {
 };
 
 module.exports = {
-  obtenerComentarios,
-  obtenerComentariosPorPost,
-  crearComentario,
-  actualizarComentario,
-  eliminarComentario,
+  getComments,
+  getCommentsByPost,
+  createComment,
+  updateComment,
+  deleteComment,
 };

@@ -1,12 +1,12 @@
 const { Router } = require("express");
-const { obtenerComentarios, obtenerComentariosPorPost, crearComentario, actualizarComentario, eliminarComentario } = require('../controllers/commentController');
-const { validarComment, validarCommentId, validarUpdateComment } = require('../middlewares/validarComment');
+const { getComments, getCommentsByPost, createComment, updateComment, deleteComment } = require('../controllers/commentController');
+const { validateComment, validateCommentId, validateUpdateComment } = require('../middlewares/validateComment');
 const router = Router();
 
-router.get("/", obtenerComentarios);
-router.get("/post/:postId", obtenerComentariosPorPost);
-router.post("/", validarComment, crearComentario);
-router.put("/:id", validarCommentId, validarUpdateComment, actualizarComentario);
-router.delete("/:id", validarCommentId, eliminarComentario);
+router.get("/", getComments);
+router.get("/post/:postId", getCommentsByPost);
+router.post("/", validateComment, createComment);
+router.put("/:id", validateCommentId, validateUpdateComment, updateComment);
+router.delete("/:id", validateCommentId, deleteComment);
 
 module.exports = router;

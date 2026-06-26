@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const Post = require("../models/Post");
+const User = require("../models/User");
 
 const validatePostExists = async (req, res, next) => {
   try {
@@ -30,38 +31,48 @@ const validatePostExists = async (req, res, next) => {
 };
 
 // validar body al crear post
-const validatePostBody = (req, res, next) => {
+const validatePostBody = async (req, res, next) => {
+  try {
+    if (!req.body) {
+      return res.status(400).json({
+        message: "Body requerido",
+      });
+    }
 
-  if (!req.body) {
-    return res.status(400).json({
-      message: "Body requerido",
-    });
+    const { description, user } = req.body;
+
+    if (!description || description.trim() === "") {
+      return res.status(400).json({
+        message: "La descripción es obligatoria",
+      });
+    }
+
+    if (!user) {
+      return res.status(400).json({
+        message: "El usuario es obligatorio",
+      });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(user)) {
+      return res.status(400).json({
+        message: "UserId inválido",
+      });
+    }
+
+    const userExists = await User.findById(user);
+    if (!userExists) {
+      return res.status(404).json({
+        message: "El usuario especificado no existe en el sistema",
+      });
+    }
+
+    next();
+  } catch (error) {
+    res.status(500).json({ error: "Error al validar el body del post" });
   }
-
-  const { description, user } = req.body;
-
-  if (!description || description.trim() === "") {
-    return res.status(400).json({
-      message: "La descripción es obligatoria",
-    });
-  }
-
-  if (!user) {
-    return res.status(400).json({
-      message: "El usuario es obligatorio",
-    });
-  }
-
-  if (!mongoose.Types.ObjectId.isValid(user)) {
-    return res.status(400).json({
-      message: "UserId inválido",
-    });
-  }
-
-  next();
 };
 
 module.exports = {
   validatePostExists,
-  validatePostBody
+  validatePostBody,
 };

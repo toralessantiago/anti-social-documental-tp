@@ -3,7 +3,7 @@ const User = require("../models/User");
 // GET USERS
 const getUsers = async (req, res) => {
   try {
-    const users = await User.find().select("_id nickname email"); 
+    const users = await User.find().select("_id nickname email");
 
     res.status(200).json({
       message: "Usuarios obtenidos con éxito.",
@@ -17,7 +17,9 @@ const getUsers = async (req, res) => {
 // GET USER BY ID
 const getUserById = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id).select("_id nickname email");
+    const user = await User.findById(req.params.id).select(
+      "_id nickname email",
+    );
 
     if (!user) {
       return res.status(404).json({ error: "Usuario no encontrado." });
@@ -52,7 +54,7 @@ const createUser = async (req, res) => {
     // se detecta el error de clave duplicada de mongodb: 11000
     if (error.code === 11000) {
       const campoDuplicado = Object.keys(error.keyValue)[0];
-      
+
       return res.status(400).json({
         message: `El ${campoDuplicado} ya se encuentra registrado por otro usuario.`,
       });

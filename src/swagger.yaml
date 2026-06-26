@@ -475,10 +475,13 @@ paths:
               properties:
                 content:
                   type: string
+                  description: Contenido del comentario.
                 user:
                   type: string
+                  description: ID de Mongoose del usuario que comenta.
                 post:
                   type: string
+                  description: ID de Mongoose del post comentado.
               example:
                 content: "Excelente estructura documental, ¡aguante MongoDB!"
                 user: 6a3d3c37d9726fc5cca163f4
@@ -504,6 +507,27 @@ paths:
         "500":
           description: Error al obtener comentarios.
 
+  /api/comments/post/{postId}:
+    parameters:
+      - name: postId
+        in: path
+        required: true
+        description: ID de Mongoose del post.
+        schema:
+          type: string
+          example: 6a3d3da1b2156c7163f5c575
+
+    get:
+      tags:
+        - Comments
+      summary: Obtener Comments por Post
+      description: Recupera todos los comentarios que pertenecen a un post específico.
+      responses:
+        "200":
+          description: Lista de comentarios del post obtenida con éxito.
+        "500":
+          description: Error interno al obtener los comentarios.
+
   /api/comments/{id}:
     parameters:
       - name: id
@@ -513,6 +537,35 @@ paths:
         schema:
           type: string
           example: 6a3d3da1b2156c7163f5c599
+
+    put:
+      tags:
+        - Comments
+      summary: Actualizar Comment
+      description: Modifica el contenido de un comentario existente tras validar su ID y la estructura de los datos.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - content
+              properties:
+                content:
+                  type: string
+                  description: Nuevo contenido del comentario.
+              example:
+                content: "Contenido actualizado del comentario."
+      responses:
+        "200":
+          description: Comentario actualizado con éxito.
+        "400":
+          description: Error de validación en los datos de actualización.
+        "404":
+          description: El comentario no fue encontrado en la base de datos.
+        "500":
+          description: Error interno al actualizar o validar el comentario.
 
     delete:
       tags:

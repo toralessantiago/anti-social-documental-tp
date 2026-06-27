@@ -35,8 +35,12 @@ const unfollowUser = async (req, res) => {
     const { userId, targetId } = req.params;
 
     await Promise.all([
-      User.findByIdAndUpdate(userId, { $addToSet: { following: targetId } }),
-      User.findByIdAndUpdate(targetId, { $addToSet: { followers: userId } }),
+      User.findByIdAndUpdate(userId, {
+        $pull: { following: targetId },
+      }),
+      User.findByIdAndUpdate(targetId, {
+        $pull: { followers: userId },
+      }),
     ]);
 
     res.status(200).json({ message: "Has dejado de seguir al usuario." });

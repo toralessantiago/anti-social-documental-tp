@@ -249,29 +249,84 @@ Beneficios:
 
 # 📌 Endpoints Principales
 
+## 👤 Usuarios
+
 | Método | Ruta | Descripción |
 |---------|------|-------------|
 | POST | `/api/users` | Crear usuario |
-| GET | `/api/users/:id` | Obtener usuario |
-| PUT | `/api/users/:id` | Actualizar usuario |
-| DELETE | `/api/users/:id` | Eliminar usuario |
-| POST | `/api/posts` | Crear publicación |
-| GET | `/api/posts` | Obtener publicaciones |
-| DELETE | `/api/posts/:id` | Eliminar publicación |
-| POST | `/api/posts/:id/images` | Subir imagen a una publicación |
-| POST | `/api/comments` | Crear comentario |
-| GET | `/api/comments` | Obtener comentarios visibles |
-| POST | `/api/tags` | Crear etiqueta |
-| POST | `/api/followers/:id` | Seguir usuario |
-| DELETE | `/api/followers/:id` | Dejar de seguir usuario |
-
-> Para consultar todos los endpoints, parámetros, ejemplos y esquemas disponibles, acceder a **Swagger** en:
-
-```
-http://localhost:3000/api-docs
-```
+| GET | `/api/users` | Obtener todos los usuarios |
+| GET | `/api/users/:id` | Obtener un usuario |
+| PUT | `/api/users/:id` | Actualizar un usuario |
+| DELETE | `/api/users/:id` | Eliminar un usuario |
 
 ---
+
+## 📝 Publicaciones
+
+| Método | Ruta | Descripción |
+|---------|------|-------------|
+| POST | `/api/posts` | Crear publicación |
+| GET | `/api/posts` | Obtener todas las publicaciones |
+| GET | `/api/posts/:id` | Obtener una publicación |
+| PUT | `/api/posts/:id` | Actualizar una publicación |
+| DELETE | `/api/posts/:id` | Eliminar una publicación |
+
+---
+
+## 🖼️ Imágenes de Publicaciones
+
+| Método | Ruta | Descripción |
+|---------|------|-------------|
+| POST | `/api/posts/:id/images` | Agregar imagen a una publicación |
+| PUT | `/api/posts/:id/images/:imageId` | Actualizar una imagen |
+| DELETE | `/api/posts/:id/images/:imageId` | Eliminar una imagen |
+
+---
+
+## 🏷️ Etiquetas
+
+| Método | Ruta | Descripción |
+|---------|------|-------------|
+| GET | `/api/tags` | Obtener todas las etiquetas |
+| GET | `/api/tags/:id` | Obtener una etiqueta |
+| POST | `/api/tags` | Crear una etiqueta |
+| PUT | `/api/tags/:id` | Actualizar una etiqueta |
+| DELETE | `/api/tags/:id` | Eliminar una etiqueta |
+
+---
+
+## 🔗 Relación Post - Tags
+
+| Método | Ruta | Descripción |
+|---------|------|-------------|
+| PUT | `/api/posts/:id/tags` | Reemplazar todas las etiquetas del post |
+| POST | `/api/posts/:id/tags/:tagId` | Asociar una etiqueta |
+| DELETE | `/api/posts/:id/tags/:tagId` | Desasociar una etiqueta |
+
+---
+
+## 💬 Comentarios
+
+| Método | Ruta | Descripción |
+|---------|------|-------------|
+| GET | `/api/comments` | Obtener comentarios visibles |
+| GET | `/api/comments/post/:postId` | Obtener comentarios de un post |
+| POST | `/api/comments` | Crear comentario |
+| PUT | `/api/comments/:id` | Actualizar comentario |
+| DELETE | `/api/comments/:id` | Eliminar comentario |
+
+---
+
+## 👥 Seguidores
+
+| Método | Ruta | Descripción |
+|---------|------|-------------|
+| POST | `/api/followers/:userId/:targetId` | Seguir usuario |
+| DELETE | `/api/followers/:userId/:targetId` | Dejar de seguir usuario |
+| GET | `/api/followers/:userId/followers` | Obtener seguidores |
+| GET | `/api/followers/:userId/following` | Obtener seguidos |
+
+> La documentación completa de todos los endpoints, parámetros, ejemplos y respuestas se encuentra disponible en **Swagger** en `http://localhost:3000/api-docs`.
 
 # 🎁 Funcionalidades Destacadas
 

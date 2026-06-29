@@ -11,6 +11,7 @@ const getUsers = async (req, res) => {
       data: users,
     });
   } catch (error) {
+    console.error("🔥 Error real de Mongoose:", error);
     res.status(500).json({ error: "Error al obtener usuarios." });
   }
 };

@@ -1,6 +1,7 @@
 const express = require("express");
 const fs = require("fs");
 const path = require("path");
+const cors = require("cors");
 const YAML = require("js-yaml");
 const swaggerUi = require("swagger-ui-express");
 
@@ -18,6 +19,11 @@ const PORT = process.env.PORT || 3001;
 
 const swaggerDocument = YAML.load(
   fs.readFileSync(path.join(__dirname, "swagger.yaml"), "utf8"),
+);
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+  }),
 );
 
 app.use(express.json());
@@ -39,7 +45,7 @@ const startServer = async () => {
   try {
     await connectDB();
     await connectRedis();
-    
+
     app.listen(PORT, () => {
       console.log(`Servidor en http://localhost:${PORT}`);
       console.log(`Swagger en http://localhost:${PORT}/api-docs`);

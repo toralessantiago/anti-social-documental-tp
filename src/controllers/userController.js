@@ -3,7 +3,8 @@ const User = require("../models/User");
 // GET USERS
 const getUsers = async (req, res) => {
   try {
-    const users = await User.find().select("_id nickname email");
+    // Agregamos fullName y birthDate al select
+    const users = await User.find().select("_id fullName nickname email birthDate");
 
     res.status(200).json({
       message: "Usuarios obtenidos con éxito.",
@@ -18,7 +19,7 @@ const getUsers = async (req, res) => {
 const getUserById = async (req, res) => {
   try {
     const user = await User.findById(req.params.id).select(
-      "_id nickname email",
+      "_id fullName nickname email birthDate",
     );
 
     if (!user) {
@@ -37,13 +38,15 @@ const getUserById = async (req, res) => {
 // CREATE USER
 const createUser = async (req, res) => {
   try {
-    const { nickname, email, password } = req.body;
+    const { fullName, nickname, email, password, birthDate } = req.body;
 
     // Creamos el usuario en MongoDB
     const newUser = await User.create({
+      fullName,
       nickname,
       email,
       password,
+      birthDate
     });
 
     return res.status(201).json({
@@ -51,10 +54,9 @@ const createUser = async (req, res) => {
       data: newUser,
     });
   } catch (error) {
-    // se detecta el error de clave duplicada de mongodb: 11000
+    // Detectamos el error de clave duplicada de MongoDB (11000)
     if (error.code === 11000) {
       const campoDuplicado = Object.keys(error.keyValue)[0];
-
       return res.status(400).json({
         message: `El ${campoDuplicado} ya se encuentra registrado por otro usuario.`,
       });
@@ -94,8 +96,10 @@ const updateUser = async (req, res) => {
       message: "Usuario actualizado con éxito.",
       data: {
         id: updatedUser._id,
+        fullName: updatedUser.fullName,
         nickname: updatedUser.nickname,
         email: updatedUser.email,
+        birthDate: updatedUser.birthDate
       },
     });
   } catch (error) {

@@ -55,7 +55,7 @@ const getFollowing = async (req, res) => {
     const { userId } = req.params;
     const user = await User.findById(userId).populate(
       "following",
-      "_id nickname email",
+      "_id fullName nickname email birthDate" //  fullName y birthDate
     );
 
     if (!user) {
@@ -77,7 +77,7 @@ const getFollowers = async (req, res) => {
     const { userId } = req.params;
     const user = await User.findById(userId).populate(
       "followers",
-      "_id nickname email",
+      "_id fullName nickname email birthDate" // fullName y birthDate
     );
 
     if (!user) {

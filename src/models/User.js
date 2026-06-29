@@ -2,6 +2,11 @@ const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema(
   {
+    fullName: {
+      type: String,
+      required: [true, "El nombre completo es obligatorio"],
+      trim: true,
+    },
     nickname: {
       type: String,
       required: [true, "El nickname es obligatorio"],
@@ -16,6 +21,10 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       required: [true, "La contraseña es obligatoria"],
+    },
+    birthDate: {
+      type: Date,
+      required: [true, "La fecha de nacimiento es obligatoria"],
     },
     followers: [
       {

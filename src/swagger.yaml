@@ -35,16 +35,40 @@ paths:
             schema:
               type: object
               properties:
+                fullname:
+                  type: string
+                  description: Nombre completo del usuario.
                 nickname:
                   type: string
+                  description: Nombre de usuario único.
                 email:
                   type: string
+                  format: email
+                  description: Correo electrónico único.
                 password:
                   type: string
+                  format: password
+                  description: Contraseña de acceso.
+                birthDate:
+                  type: string
+                  format: date
+                  description: Fecha de nacimiento en formato ISO.
+                bio:
+                  type: string
+                  maxLength: 200
+                  description: Breve biografía u optimización del perfil.
+                location:
+                  type: string
+                  maxLength: 100
+                  description: Ubicación geográfica o zona del usuario.
               example:
-                nickname: juan
-                email: juanperez@gmail.com
-                password: prz123
+                fullname: "Juan Pérez"
+                nickname: "juanperez"
+                email: "juanperez@gmail.com"
+                password: "password123"
+                birthDate: "1995-05-15"
+                bio: "Desarrollador apasionado por Node.js."
+                location: "Buenos Aires, Argentina"
       responses:
         "201":
           description: Usuario creado con éxito.
@@ -102,16 +126,29 @@ paths:
             schema:
               type: object
               properties:
+                fullname:
+                  type: string
                 nickname:
                   type: string
                 email:
                   type: string
                 password:
                   type: string
+                birthDate:
+                  type: string
+                  format: date
+                bio:
+                  type: string
+                  maxLength: 200
+                location:
+                  type: string
+                  maxLength: 100
               example:
                 nickname: pablo
                 email: pablogomez@gmail.com
                 password: dfg505
+                bio: "Nueva biografía actualizada"
+                location: "Córdoba, Argentina"
       responses:
         "200":
           description: Usuario actualizado con éxito.
@@ -133,6 +170,70 @@ paths:
         "500":
           description: Error al eliminar usuario.
 
+  # --- ENDPOINTS DE SUB-RECURSOS DE USERS ---
+  /api/users/{id}/posts:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: ID único del usuario (MongoDB ObjectId).
+        schema:
+          type: string
+          pattern: "^[0-9a-fA-F]{24}$"
+          example: 6a3d3c37d9726fc5cca163f4
+    get:
+      tags:
+        - Users
+      summary: Obtener publicaciones de un usuario
+      description: Devuelve el listado completo de publicaciones creadas exclusivamente por el usuario especificado.
+      responses:
+        "200":
+          description: Publicaciones del usuario obtenidas con éxito.
+        "500":
+          description: Error al obtener las publicaciones del usuario.
+
+  /api/users/{id}/comments:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: ID único del usuario (MongoDB ObjectId).
+        schema:
+          type: string
+          pattern: "^[0-9a-fA-F]{24}$"
+          example: 6a3d3c37d9726fc5cca163f4
+    get:
+      tags:
+        - Users
+      summary: Obtener comentarios de un usuario
+      description: Recupera el historial de todos los comentarios que el usuario ha realizado en las distintas publicaciones.
+      responses:
+        "200":
+          description: Comentarios del usuario obtenidos con éxito.
+        "500":
+          description: Error al obtener los comentarios del usuario.
+
+  /api/users/{id}/likes:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: ID único del usuario (MongoDB ObjectId).
+        schema:
+          type: string
+          pattern: "^[0-9a-fA-F]{24}$"
+          example: 6a3d3c37d9726fc5cca163f4
+    get:
+      tags:
+        - Users
+      summary: Obtener Me Gusta de un usuario
+      description: Devuelve el conjunto de publicaciones (posts) a las que el usuario les ha dado "Me Gusta".
+      responses:
+        "200":
+          description: Posts que le gustan al usuario obtenidos con éxito.
+        "500":
+          description: Error al obtener los likes del usuario.
+
   # --- ENDPOINTS DE FOLLOWERS ---
   /api/followers/{userId}/{targetId}:
     parameters:
@@ -150,7 +251,6 @@ paths:
         schema:
           type: string
           example: 6a3d3da1b2156c7163f5c575
-
     post:
       tags:
         - Followers
@@ -165,7 +265,6 @@ paths:
           description: Uno o ambos usuarios no existen (Integridad Referencial).
         "500":
           description: Error al seguir usuario.
-
     delete:
       tags:
         - Followers
@@ -188,7 +287,6 @@ paths:
         schema:
           type: string
           example: 6a3d3c37d9726fc5cca163f4
-
     get:
       tags:
         - Followers
@@ -211,7 +309,6 @@ paths:
         schema:
           type: string
           example: 6a3d3c37d9726fc5cca163f4
-
     get:
       tags:
         - Followers
@@ -253,7 +350,6 @@ paths:
           description: Error de validación (Descripción vacía o ID de usuario inválido).
         "500":
           description: Error interno del servidor al crear el post.
-
     get:
       tags:
         - Posts
@@ -274,7 +370,6 @@ paths:
         schema:
           type: string
           example: 6a3d3da1b2156c7163f5c575
-
     get:
       tags:
         - Posts
@@ -289,7 +384,6 @@ paths:
           description: Post no encontrado.
         "500":
           description: Error interno del servidor.
-
     put:
       tags:
         - Posts
@@ -322,7 +416,6 @@ paths:
           description: Post no encontrado en la base de datos.
         "500":
           description: Error interno del servidor al intentar actualizar.
-
     delete:
       tags:
         - Posts
@@ -346,7 +439,6 @@ paths:
         schema:
           type: string
           example: 6a3d3da1b2156c7163f5c575
-
     post:
       tags:
         - Posts
@@ -389,7 +481,6 @@ paths:
         schema:
           type: string
           example: 6a3d3da1b2156c7163f5c579
-
     put:
       tags:
         - Posts
@@ -424,7 +515,6 @@ paths:
           description: El post o el ID de la imagen específica no fueron encontrados en la base de datos.
         "500":
           description: Error interno en el servidor al intentar procesar o guardar la imagen.
-
     delete:
       tags:
         - Posts
@@ -448,7 +538,6 @@ paths:
         schema:
           type: string
           example: 6a3acdf1417ae63ebc709a5f
-
     post:
       tags:
         - Posts
@@ -496,7 +585,6 @@ paths:
         schema:
           type: string
           example: 66786c3a1a2b3c4d5e6f7a8b
-
     post:
       tags:
         - Posts
@@ -511,7 +599,6 @@ paths:
           description: Post o Tag no encontrados en las colecciones.
         "500":
           description: Error al asociar o validar el Tag en el Post.
-
     delete:
       tags:
         - Posts
@@ -543,13 +630,10 @@ paths:
               properties:
                 content:
                   type: string
-                  description: Contenido del comentario.
                 user:
                   type: string
-                  description: ID de Mongoose del usuario que comenta.
                 post:
                   type: string
-                  description: ID de Mongoose del post comentado.
               example:
                 content: "Excelente estructura documental, ¡aguante MongoDB!"
                 user: 6a3d3c37d9726fc5cca163f4
@@ -563,7 +647,6 @@ paths:
           description: El usuario o el post especificados no existen.
         "500":
           description: Error al crear el comentario.
-
     get:
       tags:
         - Comments
@@ -584,7 +667,6 @@ paths:
         schema:
           type: string
           example: 6a3d3da1b2156c7163f5c575
-
     get:
       tags:
         - Comments
@@ -605,7 +687,6 @@ paths:
         schema:
           type: string
           example: 6a3d3da1b2156c7163f5c599
-
     put:
       tags:
         - Comments
@@ -634,7 +715,6 @@ paths:
           description: El comentario no fue encontrado en la base de datos.
         "500":
           description: Error interno al actualizar o validar el comentario.
-
     delete:
       tags:
         - Comments
@@ -668,7 +748,6 @@ paths:
                   type: string
                   minLength: 2
                   maxLength: 30
-                  description: Nombre único para el nuevo Tag.
               example:
                 name: "javascript"
       responses:
@@ -678,7 +757,6 @@ paths:
           description: Error de validación de Mongoose (el nombre ya existe, está vacío o no cumple con el largo de 2 a 30 caracteres).
         "500":
           description: Error al crear el Tag.
-
     get:
       tags:
         - Tags
@@ -699,7 +777,6 @@ paths:
         schema:
           type: string
           example: 6a3acdf1417ae63ebc709a5f
-
     get:
       tags:
         - Tags
@@ -714,7 +791,6 @@ paths:
           description: Tag no encontrado.
         "500":
           description: Error al obtener el Tag.
-
     put:
       tags:
         - Tags
@@ -733,7 +809,6 @@ paths:
                   type: string
                   minLength: 2
                   maxLength: 30
-                  description: Nuevo nombre para el Tag.
             example:
               name: "javascript-avanzado"
       responses:
@@ -745,7 +820,6 @@ paths:
           description: Tag no encontrado para actualizar.
         "500":
           description: Error al actualizar el Tag.
-
     delete:
       tags:
         - Tags

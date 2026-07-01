@@ -107,6 +107,11 @@ Crear un archivo **`.env`** en la raíz del proyecto con el siguiente contenido:
 
 ```env
 PORT=3000
+
+MONGO_USER=admin
+MONGO_PASSWORD=admin123
+MONGO_PORT=27017
+
 NODE_ENV=development
 
 MONGO_URI=mongodb://admin:admin123@localhost:27017/anti-social?authSource=admin

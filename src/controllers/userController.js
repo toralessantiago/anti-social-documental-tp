@@ -3,8 +3,8 @@ const User = require("../models/User");
 // GET USERS
 const getUsers = async (req, res) => {
   try {
-    // Agregamos fullName y birthDate al select
-    const users = await User.find().select("_id fullName nickname email birthDate");
+    // Agregamos fullname y birthDate al select
+    const users = await User.find().select("_id fullname nickname email birthDate");
 
     res.status(200).json({
       message: "Usuarios obtenidos con éxito.",
@@ -20,7 +20,7 @@ const getUsers = async (req, res) => {
 const getUserById = async (req, res) => {
   try {
     const user = await User.findById(req.params.id).select(
-      "_id fullName nickname email birthDate",
+      "_id fullname nickname email birthDate",
     );
 
     if (!user) {
@@ -39,11 +39,11 @@ const getUserById = async (req, res) => {
 // CREATE USER
 const createUser = async (req, res) => {
   try {
-    const { fullName, nickname, email, password, birthDate } = req.body;
+    const { fullname, nickname, email, password, birthDate } = req.body;
 
     // Creamos el usuario en MongoDB
     const newUser = await User.create({
-      fullName,
+      fullname,
       nickname,
       email,
       password,
@@ -97,7 +97,7 @@ const updateUser = async (req, res) => {
       message: "Usuario actualizado con éxito.",
       data: {
         id: updatedUser._id,
-        fullName: updatedUser.fullName,
+        fullname: updatedUser.fullname,
         nickname: updatedUser.nickname,
         email: updatedUser.email,
         birthDate: updatedUser.birthDate

@@ -14,8 +14,13 @@ const {
   deleteUser,
   getUserPosts,    
   getUserComments, 
-  getUserLikes    
+  getUserLikes,
+  loginUser
+
 } = require("../controllers/userController");
+
+
+router.post("/login", loginUser);
 
 // --- RUTAS NUEVAS ---
 router.get("/:id/posts", getUserPosts);

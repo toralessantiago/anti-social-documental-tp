@@ -14,6 +14,7 @@ const {
   addImage,
   removeImage,
   updateImage,
+  toggleLike
 } = require("../controllers/postController");
 
 const {
@@ -64,5 +65,8 @@ router.put(
   validatePostExists,
   updateImage,
 );
+
+// ruta para likes
+router.patch("/:id/like", validatePostExists, toggleLike);
 
 module.exports = router;

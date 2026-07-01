@@ -261,6 +261,34 @@ const updateImage = async (req, res) => {
   }
 };
 
+const toggleLike = async (req, res) => {
+  try {
+    const post = req.post;
+    const { userId } = req.body;
+
+    if (!userId) {
+      return res.status(400).json({ message: "Falta el userId" });
+    }
+
+    const index = post.likes.findIndex((id) => id.toString() === userId);
+
+    if (index === -1) {
+      post.likes.push(userId); 
+    } else {
+      post.likes.splice(index, 1);
+    }
+
+    await post.save();
+
+    res.status(200).json({
+      message: index === -1 ? "Like agregado" : "Like eliminado",
+      data: post,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Error al procesar el like", error: error.message });
+  }
+};
+
 module.exports = {
   assignTags,
   associateTag,
@@ -273,4 +301,5 @@ module.exports = {
   addImage,
   removeImage,
   updateImage,
+  toggleLike
 };

@@ -19,8 +19,9 @@ const getUsers = async (req, res) => {
 // GET USER BY ID
 const getUserById = async (req, res) => {
   try {
+    // Acá está el cambio principal: el .select() ahora pide todos los campos nuevos
     const user = await User.findById(req.params.id).select(
-      "_id fullname nickname email birthDate",
+      "_id fullname nickname email birthDate bio location followers following createdAt",
     );
 
     if (!user) {
@@ -80,7 +81,7 @@ const updateUser = async (req, res) => {
     }
 
     if (req.body.nickname) {
-      const existingUser = await User.findOne({ nickname: req.body.nickname }); 
+      const existingUser = await User.findOne({ nickname: req.body.nickname });
 
       if (existingUser && existingUser._id.toString() !== user._id.toString()) {
         return res.status(400).json({ error: "El nickname ya existe." });
@@ -93,6 +94,7 @@ const updateUser = async (req, res) => {
       { new: true }
     );
 
+    // Acá está el cambio principal: el objeto "data" devuelve toda la info completa
     res.status(200).json({
       message: "Usuario actualizado con éxito.",
       data: {
@@ -100,7 +102,12 @@ const updateUser = async (req, res) => {
         fullname: updatedUser.fullname,
         nickname: updatedUser.nickname,
         email: updatedUser.email,
-        birthDate: updatedUser.birthDate
+        birthDate: updatedUser.birthDate,
+        bio: updatedUser.bio,
+        location: updatedUser.location,
+        followers: updatedUser.followers,
+        following: updatedUser.following,
+        createdAt: updatedUser.createdAt,
       },
     });
   } catch (error) {
@@ -116,7 +123,15 @@ const deleteUser = async (req, res) => {
     if (!user) {
       return res.status(404).json({ error: "Usuario no encontrado." });
     }
-
+    await User.updateMany(
+      {}, 
+      { 
+        $pull: { 
+          followers: req.params.id, 
+          following: req.params.id 
+        } 
+      }
+    );
     await User.findByIdAndDelete(req.params.id);
 
     res.status(200).json({ message: "Usuario eliminado con éxito." });
@@ -145,7 +160,7 @@ const getUserPosts = async (req, res) => {
 const getUserComments = async (req, res) => {
   try {
     const comments = await Comment.find({ user: req.params.id })
-      .populate("post", "description") // Opcional: trae info del post comentado
+      .populate("post", "description")
       .sort({ createdAt: -1 });
 
     res.status(200).json({
@@ -157,10 +172,8 @@ const getUserComments = async (req, res) => {
   }
 };
 
-// GET /users/:id/likes - Posts a los que el usuario les dio Me Gusta
 const getUserLikes = async (req, res) => {
   try {
-    // Busca los posts donde el array 'likes' contenga el ID de este usuario
     const likedPosts = await Post.find({ likes: req.params.id })
       .populate("user", "nickname email")
       .populate("tags", "name")
@@ -175,7 +188,6 @@ const getUserLikes = async (req, res) => {
   }
 };
 
-// ... exportalos al final de tu archivo:
 module.exports = {
   getUsers,
   getUserById,

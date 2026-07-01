@@ -188,13 +188,46 @@ const getUserLikes = async (req, res) => {
   }
 };
 
+// LOGIN USER
+const loginUser = async (req, res) => {
+  try {
+    const { nickname, password } = req.body;
+
+    const user = await User.findOne({ nickname });
+
+    if (!user || user.password !== password) {
+      return res.status(401).json({ message: "Usuario o contraseña incorrecta." });
+    }
+
+    const userData = {
+      id: user._id,
+      fullname: user.fullname,
+      nickname: user.nickname,
+      email: user.email,
+      bio: user.bio,
+      location: user.location,
+      followers: user.followers,
+      following: user.following,
+      createdAt: user.createdAt
+    };
+
+    res.status(200).json({
+      message: "Inicio de sesión exitoso.",
+      data: userData,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Error interno al iniciar sesión." });
+  }
+};
+
 module.exports = {
   getUsers,
   getUserById,
   createUser,
   updateUser,
   deleteUser,
-  getUserPosts,    // <-- Nuevo
-  getUserComments, // <-- Nuevo
-  getUserLikes,    // <-- Nuevo
+  getUserPosts,
+  getUserComments, 
+  getUserLikes, 
+  loginUser   
 };

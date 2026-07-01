@@ -20,35 +20,43 @@ async function seedDB() {
 
         //Users
         const userMartina = await User.create({
-            fullName: "Martina",
+            fullname: "Martina",
             nickname: "martinam",
             email: "martina@ejemplo.com",
             password: "password1201",
-            birthDate: "2001-01-12T00:00:00.000Z"
+            birthDate: "2001-01-12T00:00:00.000Z",
+            bio: "Probando123",
+            location: "Argentina"
         });
 
         const userSanti = await User.create({
-            fullName: "Santi",
+            fullname: "Santi",
             nickname: "santiago",
             email: "santiago@ejemplo.com",
             password: "password123",
-            birthDate: "2004-06-12T00:00:00.000Z"
+            birthDate: "2004-06-12T00:00:00.000Z",
+            bio: "Probando123",
+            location: "Argentina"
         });
 
         const userRo = await User.create({
-            fullName: "Ro",
+            fullname: "Ro",
             nickname: "roalaniz",
             email: "ro@ejemplo.com",
             password: "contrasenia",
-            birthDate: "2002-07-22T00:00:00.000Z"
+            birthDate: "2002-07-22T00:00:00.000Z",
+            bio: "Probando123",
+            location: "Argentina"
         });
 
         const userEstefi = await User.create({
-            fullName: "Estefi",
+            fullname: "Estefi",
             nickname: "estefi",
             email: "estefi@ejemplo.com",
             password: "contrasenia24",
-            birthDate: "1998-11-19T00:00:00.000Z"
+            birthDate: "1998-11-19T00:00:00.000Z",
+            bio: "Probando123",
+            location: "Argentina"
         });
 
         // Tags

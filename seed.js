@@ -1,10 +1,12 @@
+console.log("La URI es:", process.env.MONGO_URI);
 require("dotenv").config();
+
 const mongoose = require("mongoose");
 
-const User = require("../models/User");
-const Post = require('../models/Post');
-const Comment = require('../models/Comment');
-const Tag = require('../models/Tag');
+const User = require("./src/models/User");
+const Post = require('./src/models/Post');
+const Comment = require('./src/models/Comment');
+const Tag = require('./src/models/Tag');
 
 
 async function seedDB() {
@@ -51,11 +53,11 @@ async function seedDB() {
 
         // Tags
         const tagEstrategias = await Tag.create({
-            name: "Estrategias de Persistencia"
+            name: "Estrategias"
         });
 
         const tagInterfaces = await Tag.create({
-            name: "Construcción de Interfaces de Usuario"
+            name: "Interfaces"
         });
 
         // Posts

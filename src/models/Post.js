@@ -1,11 +1,11 @@
 const mongoose = require("mongoose");
 
 const imageSchema = new mongoose.Schema({
-    url: { 
-        type: String, 
-        required: [true, "La URL de la imagen es obligatoria"],
-        trim: true,
-    },
+  url: {
+    type: String,
+    required: [true, "La URL de la imagen es obligatoria"],
+    trim: true,
+  },
 });
 
 const postSchema = new mongoose.Schema(
@@ -27,10 +27,16 @@ const postSchema = new mongoose.Schema(
         ref: "Tag",
       },
     ],
+    likes: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 module.exports = mongoose.model("Post", postSchema);

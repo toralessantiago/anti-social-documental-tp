@@ -16,7 +16,7 @@ const userSchema = new mongoose.Schema(
     email: {
       type: String,
       required: [true, "El email es obligatorio"],
-      unique: true, 
+      unique: true,
     },
     password: {
       type: String,
@@ -38,10 +38,20 @@ const userSchema = new mongoose.Schema(
         ref: "User",
       },
     ],
+    bio: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    location: {
+      type: String,
+      trim: true,
+      default: "",
+    },
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 module.exports = mongoose.model("User", userSchema);

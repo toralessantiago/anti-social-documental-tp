@@ -12,21 +12,21 @@ const {
   createUser,
   updateUser,
   deleteUser,
+  getUserPosts,    
+  getUserComments, 
+  getUserLikes    
 } = require("../controllers/userController");
 
-// GET ALL USERS
+// --- RUTAS NUEVAS ---
+router.get("/:id/posts", getUserPosts);
+router.get("/:id/comments", getUserComments);
+router.get("/:id/likes", getUserLikes);
+
+// --- RUTAS EXISTENTES ---
 router.get("/", getUsers);
-
-// GET USER BY ID
 router.get("/:id", getUserById);
-
-// CREATE USER
 router.post("/", validateUser, createUser);
-
-// UPDATE USER
 router.put("/:id", validateUserUpdate, updateUser);
-
-// DELETE USER
 router.delete("/:id", deleteUser);
 
 module.exports = router;

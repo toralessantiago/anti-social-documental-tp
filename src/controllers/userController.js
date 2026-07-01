@@ -1,9 +1,9 @@
 const User = require("../models/User");
-
+const Post = require("../models/Post");      
+const Comment = require("../models/Comment");
 // GET USERS
 const getUsers = async (req, res) => {
   try {
-    // Agregamos fullname y birthDate al select
     const users = await User.find().select("_id fullname nickname email birthDate");
 
     res.status(200).json({
@@ -11,7 +11,7 @@ const getUsers = async (req, res) => {
       data: users,
     });
   } catch (error) {
-    console.error("🔥 Error real de Mongoose:", error);
+    console.error("Error real de Mongoose:", error);
     res.status(500).json({ error: "Error al obtener usuarios." });
   }
 };
@@ -125,10 +125,64 @@ const deleteUser = async (req, res) => {
   }
 };
 
+// GET /users/:id/posts - Publicaciones del usuario
+const getUserPosts = async (req, res) => {
+  try {
+    const posts = await Post.find({ user: req.params.id })
+      .populate("user", "nickname email")
+      .populate("tags", "name")
+      .sort({ createdAt: -1 }); // Ordena de más nuevo a más viejo
+
+    res.status(200).json({
+      message: "Publicaciones del usuario obtenidas con éxito.",
+      data: posts,
+    });
+  } catch (error) {
+    res.status(500).json({ error: "Error al obtener las publicaciones del usuario." });
+  }
+};
+// GET /users/:id/comments - Comentarios de usuario
+const getUserComments = async (req, res) => {
+  try {
+    const comments = await Comment.find({ user: req.params.id })
+      .populate("post", "description") // Opcional: trae info del post comentado
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      message: "Comentarios del usuario obtenidos con éxito.",
+      data: comments,
+    });
+  } catch (error) {
+    res.status(500).json({ error: "Error al obtener los comentarios del usuario." });
+  }
+};
+
+// GET /users/:id/likes - Posts a los que el usuario les dio Me Gusta
+const getUserLikes = async (req, res) => {
+  try {
+    // Busca los posts donde el array 'likes' contenga el ID de este usuario
+    const likedPosts = await Post.find({ likes: req.params.id })
+      .populate("user", "nickname email")
+      .populate("tags", "name")
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      message: "Posts que le gustan al usuario obtenidos con éxito.",
+      data: likedPosts,
+    });
+  } catch (error) {
+    res.status(500).json({ error: "Error al obtener los likes del usuario." });
+  }
+};
+
+// ... exportalos al final de tu archivo:
 module.exports = {
   getUsers,
   getUserById,
   createUser,
   updateUser,
   deleteUser,
+  getUserPosts,    // <-- Nuevo
+  getUserComments, // <-- Nuevo
+  getUserLikes,    // <-- Nuevo
 };

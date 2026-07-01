@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: Anti-Social Net API
-  version: 2.0.0
+  version: 2.1.0
   description: API REST para la plataforma Anti-Social Net. Migrada a una arquitectura NoSQL utilizando Express, Mongoose y MongoDB.
 
 servers:
@@ -10,11 +10,11 @@ servers:
 
 tags:
   - name: Users
-    description: Operaciones de gestión de usuarios
+    description: Operaciones de gestión de usuarios y sub-recursos de perfil
   - name: Followers
     description: Gestión de seguidores y seguidos mediante referencias entre documentos
   - name: Posts
-    description: Operaciones de publicaciones, imágenes embebidas y asignación de etiquetas
+    description: Operaciones de publicaciones, imágenes embebidas, etiquetas e interacciones de likes
   - name: Comments
     description: Operaciones de comentarios con filtrado de fechas por variables de entorno
   - name: Tags
@@ -37,30 +37,23 @@ paths:
               properties:
                 fullname:
                   type: string
-                  description: Nombre completo del usuario.
                 nickname:
                   type: string
-                  description: Nombre de usuario único.
                 email:
                   type: string
                   format: email
-                  description: Correo electrónico único.
                 password:
                   type: string
                   format: password
-                  description: Contraseña de acceso.
                 birthDate:
                   type: string
                   format: date
-                  description: Fecha de nacimiento en formato ISO.
                 bio:
                   type: string
                   maxLength: 200
-                  description: Breve biografía u optimización del perfil.
                 location:
                   type: string
                   maxLength: 100
-                  description: Ubicación geográfica o zona del usuario.
               example:
                 fullname: "Juan Pérez"
                 nickname: "juanperez"
@@ -103,10 +96,10 @@ paths:
       tags:
         - Users
       summary: Obtener User
-      description: Devuelve los datos de un usuario específico mediante su ObjectId.
+      description: Devuelve los datos detallados de un usuario específico incluyendo contadores, bio, ubicación y fechas.
       responses:
         "200":
-          description: Usuario obtenido con éxito.
+          description: Usuario obtenido con éxito. En el select se incluyen bio, location, followers, following y createdAt.
         "400":
           description: Formato de ID inválido.
         "404":
@@ -151,7 +144,7 @@ paths:
                 location: "Córdoba, Argentina"
       responses:
         "200":
-          description: Usuario actualizado con éxito.
+          description: Usuario actualizado con éxito. Devuelve el objeto de datos completo de respuesta.
         "400":
           description: Error de validación Joi o formato de ID inválido.
         "500":
@@ -161,10 +154,10 @@ paths:
       tags:
         - Users
       summary: Eliminar User
-      description: Borra permanentemente el usuario de la base de datos por su ObjectId.
+      description: Borra permanentemente el usuario de la base de datos por su ObjectId y ejecuta una limpieza en cascada removiendo su ID de las listas de seguidores/seguidos de todos los demás usuarios del sistema ($pull).
       responses:
         "200":
-          description: Usuario eliminado con éxito.
+          description: Usuario y sus relaciones eliminados con éxito.
         "404":
           description: Usuario no encontrado.
         "500":
@@ -428,6 +421,45 @@ paths:
           description: Post no encontrado.
         "500":
           description: Error interno del servidor al eliminar el post.
+
+  # --- ENDPOINT DE INTERACCIÓN DE ME GUSTA ---
+  /api/posts/{id}/like:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: ID único del post (MongoDB ObjectId).
+        schema:
+          type: string
+          example: 6a3d3da1b2156c7163f5c575
+    patch:
+      tags:
+        - Posts
+      summary: Alternar Me Gusta (Toggle Like/Unlike)
+      description: Añade o remueve el ID de un usuario dentro del arreglo 'likes' de una publicación específica dependiendo de si existía previamente.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - userId
+              properties:
+                userId:
+                  type: string
+                  description: ID de Mongoose del usuario que interactúa.
+              example:
+                userId: "6a3d3c37d9726fc5cca163f4"
+      responses:
+        "200":
+          description: Operación procesada con éxito. Devuelve si el like fue agregado o eliminado.
+        "400":
+          description: Solicitud incorrecta por falta de userId o formato de ID inválido.
+        "404":
+          description: Post no encontrado.
+        "500":
+          description: Error interno al procesar el estado de me gusta.
 
   # --- ENDPOINTS DE POSTS IMAGES ---
   /api/posts/{id}/images:

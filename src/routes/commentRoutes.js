@@ -6,6 +6,7 @@ const {
   createComment,
   updateComment,
   deleteComment,
+  getCommentsByUser
 } = require("../controllers/commentController");
 
 const {
@@ -17,6 +18,7 @@ const {
 const router = Router();
 
 router.get("/", getComments);
+router.get("/user/:userId", getCommentsByUser);
 router.get("/post/:postId", getCommentsByPost);
 router.post("/", validateComment, createComment);
 router.put("/:id", validateCommentId, validateUpdateComment, updateComment);

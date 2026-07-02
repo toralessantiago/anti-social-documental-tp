@@ -1,6 +1,24 @@
 const Post = require("../models/Post");
 const { redisClient } = require("../config/redis");
 
+const getPostsByUser = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const posts = await Post.find({ user: userId })
+      .populate("user", "nickname email")
+      .populate("tags", "name")
+      .select("-__v");
+
+    res.status(200).json(posts);
+  } catch (error) {
+    res.status(500).json({
+      error: "Error al obtener publicaciones del usuario.",
+    });
+  }
+};
+
+
 // controladores para tags
 const assignTags = async (req, res) => {
   try {
@@ -301,5 +319,6 @@ module.exports = {
   addImage,
   removeImage,
   updateImage,
-  toggleLike
+  toggleLike,
+  getPostsByUser
 };

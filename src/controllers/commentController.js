@@ -17,6 +17,21 @@ const getComments = async (req, res) => {
   }
 };
 
+const getCommentsByUser = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const comments = await Comment.find({ user: userId })
+      .populate("post", "description");
+
+    res.json(comments);
+  } catch (error) {
+    res.status(500).json({
+      message: "Error al obtener comentarios del usuario",
+    });
+  }
+};
+
 const getCommentsByPost = async (req, res) => {
   try {
     const meses = parseInt(process.env.LIMIT_MONTHS) || 6;
@@ -83,4 +98,5 @@ module.exports = {
   createComment,
   updateComment,
   deleteComment,
+  getCommentsByUser
 };

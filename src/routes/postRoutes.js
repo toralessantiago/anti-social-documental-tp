@@ -14,7 +14,8 @@ const {
   addImage,
   removeImage,
   updateImage,
-  toggleLike
+  toggleLike,
+  getPostsByUser
 } = require("../controllers/postController");
 
 const {
@@ -28,6 +29,7 @@ const { validateTagId } = require("../middlewares/tagMiddleware");
 //El post de posts recibe las imagenes enviadas en el campo images y las almacena en uploads/posts
 router.post("/", upload.array("images", 10), validatePostBody, createPost);
 router.get("/", getPosts);
+router.get("/user/:userId", getPostsByUser);
 router.get("/:id", validatePostExists, getPostById);
 router.put("/:id", validatePostExists, validatePostBody, updatePost);
 router.delete("/:id", validatePostExists, deletePost);

@@ -31,6 +31,7 @@ router.post("/", upload.array("images", 10), validatePostBody, createPost);
 router.get("/", getPosts);
 router.get("/user/:userId", getPostsByUser);
 router.get("/:id", validatePostExists, getPostById);
+router.put("/:id/like", validatePostExists, toggleLike);
 router.put("/:id", validatePostExists, validatePostBody, updatePost);
 router.delete("/:id", validatePostExists, deletePost);
 
@@ -68,7 +69,5 @@ router.put(
   updateImage,
 );
 
-// ruta para likes
-router.patch("/:id/like", validatePostExists, toggleLike);
 
 module.exports = router;

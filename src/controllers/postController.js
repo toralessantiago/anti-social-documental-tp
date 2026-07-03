@@ -298,6 +298,7 @@ const toggleLike = async (req, res) => {
 
     await post.save();
 
+    await redisClient.del("posts_feed");
     res.status(200).json({
       message: index === -1 ? "Like agregado" : "Like eliminado",
       data: post,

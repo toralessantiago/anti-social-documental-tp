@@ -35,8 +35,6 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-// Expone la carpeta uploads como recurso estático.
-// Esto permite acceder a las imágenes mediante URL
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.use("/api/tags", routerTags);

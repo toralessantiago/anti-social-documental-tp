@@ -26,7 +26,7 @@ app.use(
       "http://localhost:5173",
       "http://localhost:5174",
       "http://localhost:5175",
-      "https://anti-social-documental-tp.vercel.app/"
+      "https://anti-social-documental-tp.vercel.app"
     ],
   }),
 );

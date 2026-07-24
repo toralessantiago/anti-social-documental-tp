@@ -1,101 +1,88 @@
 const User = require("../models/User");
 
-// SEGUIR A UN USUARIO (POST)
-const followUser = async (req, res) => {
+exports.followUser = async (req, res) => {
   try {
     const { userId, targetId } = req.params;
 
     if (userId === targetId) {
-      return res.status(400).json({ error: "No podés seguirte a vos mismo." });
+      return res.status(400).json({ message: "No podés seguirte a vos mismo" });
     }
 
-    const user = await User.findById(userId);
-    const targetUser = await User.findById(targetId);
+    const [user, target] = await Promise.all([
+      User.findById(userId),
+      User.findById(targetId),
+    ]);
 
-    if (!user || !targetUser) {
-      return res.status(404).json({ error: "Usuario no encontrado." });
+    if (!user || !target) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
     }
 
-    await User.findByIdAndUpdate(userId, {
-      $addToSet: { following: targetId },
-    });
-    await User.findByIdAndUpdate(targetId, {
-      $addToSet: { followers: userId },
-    });
+    const yaLoSigue = user.following.some((id) => id.toString() === targetId);
+    if (yaLoSigue) {
+      return res.status(400).json({ message: "Ya seguís a este usuario" });
+    }
 
-    res.status(200).json({ message: "Usuario seguido con éxito." });
+    user.following.push(targetId);
+    target.followers.push(userId);
+
+    await Promise.all([user.save(), target.save()]);
+
+    res.status(200).json({ message: "Usuario seguido correctamente" });
   } catch (error) {
-    res.status(500).json({ error: "Error al seguir al usuario." });
+    res.status(500).json({ message: "Error al seguir usuario", error: error.message });
   }
 };
 
-// DEJAR DE SEGUIR (DELETE)
-const unfollowUser = async (req, res) => {
+exports.unfollowUser = async (req, res) => {
   try {
     const { userId, targetId } = req.params;
 
-    await Promise.all([
-      User.findByIdAndUpdate(userId, {
-        $pull: { following: targetId },
-      }),
-      User.findByIdAndUpdate(targetId, {
-        $pull: { followers: userId },
-      }),
+    const [user, target] = await Promise.all([
+      User.findById(userId),
+      User.findById(targetId),
     ]);
 
-    res.status(200).json({ message: "Has dejado de seguir al usuario." });
-  } catch (error) {
-    res.status(500).json({ error: "Error al dejar de seguir al usuario." });
-  }
-};
-
-// OBTENER SEGUIDOS (GET)
-const getFollowing = async (req, res) => {
-  try {
-    const { userId } = req.params;
-    const user = await User.findById(userId).populate(
-      "following",
-      "_id fullname nickname email birthDate" //  fullname y birthDate
-    );
-
-    if (!user) {
-      return res.status(404).json({ error: "Usuario no encontrado." });
+    if (!user || !target) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
     }
 
-    res.status(200).json({
-      message: "Lista de seguidos obtenida con éxito.",
-      data: user.following,
-    });
+    user.following = user.following.filter((id) => id.toString() !== targetId);
+    target.followers = target.followers.filter((id) => id.toString() !== userId);
+
+    await Promise.all([user.save(), target.save()]);
+
+    res.status(200).json({ message: "Dejaste de seguir al usuario" });
   } catch (error) {
-    res.status(500).json({ error: "Error al obtener la lista de seguidos." });
+    res.status(500).json({ message: "Error al dejar de seguir", error: error.message });
   }
 };
 
-// OBTENER SEGUIDORES (GET)
-const getFollowers = async (req, res) => {
+exports.getFollowers = async (req, res) => {
   try {
-    const { userId } = req.params;
-    const user = await User.findById(userId).populate(
-      "followers",
-      "_id fullname nickname email birthDate" // fullname y birthDate
-    );
+    const user = await User.findById(req.params.userId)
+      .populate("followers", "nickname fullname email");
 
     if (!user) {
-      return res.status(404).json({ error: "Usuario no encontrado." });
+      return res.status(404).json({ message: "Usuario no encontrado" });
     }
 
-    res.status(200).json({
-      message: "Lista de seguidores obtenida con éxito.",
-      data: user.followers,
-    });
+    res.json({ data: user.followers });
   } catch (error) {
-    res.status(500).json({ error: "Error al obtener los seguidores." });
+    res.status(500).json({ message: "Error al obtener seguidores", error: error.message });
   }
 };
 
-module.exports = {
-  followUser,
-  unfollowUser,
-  getFollowers,
-  getFollowing,
+exports.getFollowing = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.userId)
+      .populate("following", "nickname fullname email");
+
+    if (!user) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+
+    res.json({ data: user.following });
+  } catch (error) {
+    res.status(500).json({ message: "Error al obtener usuarios seguidos", error: error.message });
+  }
 };

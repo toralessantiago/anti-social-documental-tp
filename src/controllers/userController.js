@@ -19,21 +19,18 @@ const getUsers = async (req, res) => {
 // GET USER BY ID
 const getUserById = async (req, res) => {
   try {
-    // Acá está el cambio principal: el .select() ahora pide todos los campos nuevos
-    const user = await User.findById(req.params.id).select(
-      "_id fullname nickname email birthDate bio location followers following createdAt",
-    );
+    const user = await User.findById(req.params.id)
+      .select("-password")
+      .populate("followers", "nickname fullname email")
+      .populate("following", "nickname fullname email");
 
     if (!user) {
-      return res.status(404).json({ error: "Usuario no encontrado." });
+      return res.status(404).json({ message: "Usuario no encontrado" });
     }
 
-    res.status(200).json({
-      message: "Usuario obtenido con éxito.",
-      data: user,
-    });
+    res.json({ data: user });
   } catch (error) {
-    res.status(500).json({ error: "Error al obtener usuario." });
+    res.status(500).json({ message: "Error al obtener el usuario", error: error.message });
   }
 };
 

@@ -26,6 +26,7 @@ app.use(
       "http://localhost:5173",
       "http://localhost:5174",
       "http://localhost:5175",
+      "https://anti-social-documental-tp.vercel.app/"
     ],
   }),
 );
@@ -45,7 +46,6 @@ app.use("/api/comments", routerComments);
 
 const startServer = async () => {
   try {
-    // 1. Chismoso para ver si Render nos está pasando las variables
     console.log("=== REVISIÓN DE VARIABLES EN RENDER ===");
     console.log("REDIS_URL:", process.env.REDIS_URL);
     console.log("MONGO_URI:", process.env.MONGO_URI);
@@ -54,7 +54,6 @@ const startServer = async () => {
     await connectDB();
     await connectRedis();
 
-    // 2. El '0.0.0.0' es OBLIGATORIO en Docker para que Render detecte la app
     app.listen(PORT, '0.0.0.0', () => {
       console.log(`Servidor en puerto: ${PORT}`);
       console.log(`Swagger en /api-docs`);

@@ -114,7 +114,7 @@ MONGO_PORT=27017
 
 NODE_ENV=development
 
-MONGO_URI=mongodb://admin:admin123@localhost:27017/anti-social?authSource=admin
+MONGO_URL=mongodb://admin:admin123@localhost:27017/anti-social?authSource=admin
 
 REDIS_URI=redis://localhost:6379
 

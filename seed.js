@@ -1,4 +1,4 @@
-console.log("La URI es:", process.env.MONGO_URI);
+console.log("La URI es:", process.env.MONGO_URL);
 require("dotenv").config();
 
 const mongoose = require("mongoose");
@@ -10,7 +10,7 @@ const Tag = require("./src/models/Tag");
 
 async function seedDB() {
   try {
-    await mongoose.connect(process.env.MONGO_URI);
+    await mongoose.connect(process.env.MONGO_URL);
 
     await Comment.deleteMany({});
     await Post.deleteMany({});

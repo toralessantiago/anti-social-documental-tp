@@ -48,7 +48,7 @@ const startServer = async () => {
   try {
     console.log("=== REVISIÓN DE VARIABLES EN RENDER ===");
     console.log("REDIS_URL:", process.env.REDIS_URL);
-    console.log("MONGO_URI:", process.env.MONGO_URI);
+    console.log("MONGO_URL:", process.env.MONGO_URL);
     console.log("=======================================");
 
     await connectDB();

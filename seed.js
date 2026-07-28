@@ -1,4 +1,4 @@
-console.log("La URI es:", process.env.MONGO_URL);
+console.log("La URL es:", process.env.MONGO_URL);
 require("dotenv").config();
 
 const mongoose = require("mongoose");
@@ -10,7 +10,11 @@ const Tag = require("./src/models/Tag");
 
 async function seedDB() {
   try {
-    await mongoose.connect(process.env.MONGO_URL);
+    //await // mongoose.connect(process.env.MONGO_URL);
+    await mongoose.connect(
+      "mongodb+srv://toralessantiago885_db_user:r8hLx3ty4QrJ8wie@cluster0.bnxddlx.mongodb.net/?appName=Cluster0",
+      { family: 4 } // <- ¡Esta es la magia que fuerza el IPv4 y evita el bloqueo!
+    );
 
     await Comment.deleteMany({});
     await Post.deleteMany({});
@@ -110,9 +114,6 @@ async function seedDB() {
     const tagRecetas = await Tag.create({ name: "Recetas" });
 
     // Posts
-    // ======================
-    // POSTS
-    // ======================
 
     const postSanti = await Post.create({
       description:
@@ -165,59 +166,57 @@ async function seedDB() {
       tags: [tagRecetas._id],
     });
 
-   // ======================
-// COMMENTS
-// ======================
+    // ======================
+    // COMMENTS
+    // ======================
 
-await Comment.create({
-  content: "¡Felicidades! Disfrutá mucho el viaje.",
-  visible: true,
-  user: userEstefi._id,
-  post: postMartina._id,
-});
+    await Comment.create({
+      content: "¡Felicidades! Disfrutá mucho el viaje.",
+      visible: true,
+      user: userEstefi._id,
+      post: postMartina._id,
+    });
 
-await Comment.create({
-  content: "Pasá el repo de GitHub cuando lo tengas andando.",
-  visible: true,
-  user: userRo._id,
-  post: postSanti._id,
-});
+    await Comment.create({
+      content: "Pasá el repo de GitHub cuando lo tengas andando.",
+      visible: true,
+      user: userRo._id,
+      post: postSanti._id,
+    });
 
-await Comment.create({
-  content: "Muy buena explicación.",
-  visible: true,
-  user: userCarlos._id,
-  post: postRo._id,
-});
+    await Comment.create({
+      content: "Muy buena explicación.",
+      visible: true,
+      user: userCarlos._id,
+      post: postRo._id,
+    });
 
-await Comment.create({
-  content: "¡Qué linda vista!",
-  visible: true,
-  user: userMartina._id,
-  post: postAna._id,
-});
+    await Comment.create({
+      content: "¡Qué linda vista!",
+      visible: true,
+      user: userMartina._id,
+      post: postAna._id,
+    });
 
-await Comment.create({
-  content: "Esa pizza tiene una pinta increíble.",
-  visible: true,
-  user: userSanti._id,
-  post: postVale._id,
-});
+    await Comment.create({
+      content: "Esa pizza tiene una pinta increíble.",
+      visible: true,
+      user: userSanti._id,
+      post: postVale._id,
+    });
 
-await Comment.create({
-  content: "Felicitaciones por el nuevo récord.",
-  visible: true,
-  user: userAna._id,
-  post: postMatias._id,
-});
+    await Comment.create({
+      content: "Felicitaciones por el nuevo récord.",
+      visible: true,
+      user: userAna._id,
+      post: postMatias._id,
+    });
 
-console.log("Datos creados exitosamente en la base de datos.");
-
-} catch (error) {
-  console.error("Error durante el seed:", error);
-  process.exit(1);
-}
-
+    console.log("Datos creados exitosamente en la base de datos.");
+  } catch (error) {
+    console.error("Error durante el seed:", error);
+    process.exit(1);
+  }
 }
 
 seedDB();

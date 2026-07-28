@@ -1,4 +1,3 @@
-console.log("La URL es:", process.env.MONGO_URL);
 require("dotenv").config();
 
 const mongoose = require("mongoose");
@@ -10,11 +9,7 @@ const Tag = require("./src/models/Tag");
 
 async function seedDB() {
   try {
-    //await // mongoose.connect(process.env.MONGO_URL);
-    await mongoose.connect(
-      "mongodb+srv://toralessantiago885_db_user:r8hLx3ty4QrJ8wie@cluster0.bnxddlx.mongodb.net/?appName=Cluster0",
-      { family: 4 }
-    );
+    await mongoose.connect(process.env.MONGO_URL);
 
     await Comment.deleteMany({});
     await Post.deleteMany({});
@@ -213,10 +208,11 @@ async function seedDB() {
     });
 
     console.log("Datos creados exitosamente en la base de datos.");
+    process.exit(0);
   } catch (error) {
     console.error("Error durante el seed:", error);
     process.exit(1);
   }
 }
 
-module.exports = seedDB;
+seedDB();

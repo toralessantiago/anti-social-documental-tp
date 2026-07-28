@@ -46,16 +46,6 @@ app.use("/api/users", routerUsers);
 app.use("/api/followers", routerFollowers);
 app.use("/api/comments", routerComments);
 
-app.get('/api/ejecutar-seed-secreto', async (req, res) => {
-  try {
-    const seedDB = require('../seed');
-    await seedDB();
-    res.send("¡La base de datos fue poblada con éxito!");
-  } catch (error) {
-    res.status(500).send("Hubo un error: " + error.message);
-  }
-});
-
 const startServer = async () => {
   try {
     console.log("=== REVISIÓN DE VARIABLES EN RENDER ===");

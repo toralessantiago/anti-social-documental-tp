@@ -31,16 +31,7 @@ const corsOptions = {
 const swaggerDocument = YAML.load(
   fs.readFileSync(path.join(__dirname, "swagger.yaml"), "utf8"),
 );
-app.use(
-  cors({
-      origin: [
-      "http://localhost:5173",
-      "http://localhost:5174",
-      "http://localhost:5175",
-      "https://antisocial-net-frontend-five.vercel.app"
-    ],
-  }),
-);
+
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

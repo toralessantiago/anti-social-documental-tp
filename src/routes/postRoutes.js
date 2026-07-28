@@ -21,6 +21,7 @@ const {
 const {
   validatePostExists,
   validatePostBody,
+  validatePostUpdate
 } = require("../middlewares/postMiddleware");
 
 const { validateTagId } = require("../middlewares/tagMiddleware");
@@ -32,7 +33,7 @@ router.get("/", getPosts);
 router.get("/user/:userId", getPostsByUser);
 router.get("/:id", validatePostExists, getPostById);
 router.put("/:id/like", validatePostExists, toggleLike);
-router.put("/:id", validatePostExists, validatePostBody, updatePost);
+router.put("/:id", validatePostExists, validatePostUpdate, updatePost);
 router.delete("/:id", validatePostExists, deletePost);
 
 // rutas para tags

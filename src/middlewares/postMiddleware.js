@@ -30,7 +30,6 @@ const validatePostExists = async (req, res, next) => {
 };
 
 // validar body al crear post
-// CORRECCIÓN: agrego 'async' aquí para poder usar 'await'
 const validatePostBody = async (req, res, next) => {
   try { 
     if (!req.body) {
@@ -72,7 +71,18 @@ const validatePostBody = async (req, res, next) => {
   }
 };
 
+const validatePostUpdate = (req, res, next) => {
+  const { description } = req.body;
+
+  if (description !== undefined && description.trim() === "") {
+    return res.status(400).json({ message: "La descripción no puede estar vacía" });
+  }
+
+  next();
+};
+
 module.exports = {
   validatePostExists,
-  validatePostBody
+  validatePostBody,
+  validatePostUpdate
 };

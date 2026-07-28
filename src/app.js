@@ -48,7 +48,7 @@ app.use("/api/comments", routerComments);
 
 app.get('/api/ejecutar-seed-secreto', async (req, res) => {
   try {
-    const seedDB = require('./seed');
+    const seedDB = require('../seed');
     await seedDB();
     res.send("¡La base de datos fue poblada con éxito!");
   } catch (error) {

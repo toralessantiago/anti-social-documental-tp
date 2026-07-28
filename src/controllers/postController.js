@@ -149,6 +149,8 @@ const getPostById = async (req, res) => {
 };
 
 const updatePost = async (req, res) => {
+  console.log("Cuerpo recibido (req.body):", req.body); 
+  console.log("ID recibido (req.params.id):", req.params.id);
   try {
     const post = await Post.findByIdAndUpdate(req.params.id, req.body, {
       new: true,

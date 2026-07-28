@@ -13,7 +13,7 @@ async function seedDB() {
     //await // mongoose.connect(process.env.MONGO_URL);
     await mongoose.connect(
       "mongodb+srv://toralessantiago885_db_user:r8hLx3ty4QrJ8wie@cluster0.bnxddlx.mongodb.net/?appName=Cluster0",
-      { family: 4 } // <- ¡Esta es la magia que fuerza el IPv4 y evita el bloqueo!
+      { family: 4 }
     );
 
     await Comment.deleteMany({});
@@ -219,4 +219,4 @@ async function seedDB() {
   }
 }
 
-seedDB();
+module.exports = seedDB;

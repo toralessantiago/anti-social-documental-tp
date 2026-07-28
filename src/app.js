@@ -17,6 +17,17 @@ const routerComments = require("./routes/commentRoutes");
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+const corsOptions = {
+  origin: [
+    'https://antisocial-net-frontend-mdhvc4rws-toralessantiagos-projects.vercel.app',
+    'https://antisocial-net-frontend-five.vercel.app', 
+    'http://localhost:3000',
+    'http://localhost:5173'
+  ],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true
+};
+
 const swaggerDocument = YAML.load(
   fs.readFileSync(path.join(__dirname, "swagger.yaml"), "utf8"),
 );
@@ -30,7 +41,7 @@ app.use(
     ],
   }),
 );
-
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
